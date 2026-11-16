@@ -452,6 +452,7 @@ body{padding:0;overflow:hidden}
         <label class="chk"><input type="checkbox" id="tgFields" checked> Farm fields</label>
         <label class="chk"><input type="checkbox" id="tgProv"> Province borders</label>
         <h3 class="sh">Activity</h3>
+        <label class="chk"><input type="checkbox" id="tgCities" checked> Cities</label>
         <label class="chk"><input type="checkbox" id="tgArmy" checked> Armies and battles</label>
         <label class="chk"><input type="checkbox" id="tgTrade" checked> Trade routes</label>
         <div class="btns" style="margin-top:10px"><button class="btn" type="button" id="tgAll">Show all</button><button class="btn" type="button" id="tgNone">Hide all</button></div>
@@ -603,7 +604,7 @@ const TERR=[
  {n:'Desert',c:[216,182,112],f:.15,d:1,x:.5}
 ];
 let terr,shade,owner,eth,rg,pixels,dipSel=0;const ETH=[],RELIG=[];
-let showProv=false,showFields=true;let pv=null,PR=[null],pcnt=[null];let ore;const ORE=[null,{n:'Iron',c:[120,140,176]},{n:'Copper',c:[224,122,64]},{n:'Tin',c:[200,206,214]},{n:'Gold',c:[255,212,0]},{n:'Silver',c:[236,240,255]},{n:'Coal',c:[34,34,40]}];
+let showProv=false,showFields=true;let pv=null,PR=[null],CITIES=[],CITY_AT=new Map();let ore;const ORE=[null,{n:'Iron',c:[120,140,176]},{n:'Copper',c:[224,122,64]},{n:'Tin',c:[200,206,214]},{n:'Gold',c:[255,212,0]},{n:'Silver',c:[236,240,255]},{n:'Coal',c:[34,34,40]}];
 let elev,res,riv,coast,useRivers=true,showRiv=true;
 const RES=[null,{n:'Farmland',c:[232,208,64]},{n:'Iron',c:[118,142,178]},{n:'Gold',c:[255,212,0]},{n:'Spice',c:[214,64,160]},{n:'Fish',c:[64,212,224]}];
 let landPixels=0,freeLand=0,worldInfo={};
@@ -799,7 +800,7 @@ function genResources(w,h,sd){
     else if((t===5||t===4||t===3)&&c3>.84)o=6;
     ore[i]=o;
   }
-  genRegions(w,h,sd);
+  pv=new Int32Array(N);PR=[null];CITIES=[];CITY_AT=new Map();
 }
 function paintPixel(i){
   const t=terr[i],o=owner[i],T=TERR[t],m=shade[i]/128;
@@ -851,7 +852,8 @@ function setOwner(i,newId){
     if(x<c.x0)c.x0=x;if(x>c.x1)c.x1=x;if(y<c.y0)c.y0=y;if(y>c.y1)c.y1=y;
     if(c.area>c.peakArea)c.peakArea=c.area;
   }else freeLand++;
-  {const p=pv[i];if(p){const m=pcnt[p];if(old)m.set(old,(m.get(old)||1)-1);if(newId)m.set(newId,(m.get(newId)||0)+1)}}
+  if(pv[i])provOwn(i,newId);
+  if(CITY_AT.size&&CITY_AT.has(i))cityOwn(i,old,newId);
   repaintNear(i);
 }
 /* real-map masks: 1 bit per pixel, row-major, base64 */
@@ -1524,7 +1526,7 @@ function initSim(n,chaos){
   tickN=0;evSeq=0;colorIdx=0;CHAOS=chaos;nInitial=n;
   REF=Math.max(150,landPixels/clamp(n,4,24));
   dx0=0;dy0=0;dx1=W-1;dy1=H-1;
-  spawnInitial(n);paintAll();living=countries.filter(c=>c.alive);sampleSeries();
+  spawnInitial(n);living=countries.filter(c=>c.alive);cityTick();provScan();paintAll();sampleSeries();
 }
 function sampleSeries(){
   let p=0,a=0;for(const c of countries)if(c.alive){a++;p+=c.pop}
@@ -2779,50 +2781,135 @@ const PST={province:{n:'Province',w:1,a:1},state:{n:'State',w:.92,a:.8},autonomy
 const PERS={builder:{n:'Builder',war:.6,rd:1.1,trade:1.1},warlord:{n:'Warlord',war:1.7,rd:.8,trade:.8},isolationist:{n:'Isolationist',war:.4,rd:1,trade:.55},scholar:{n:'Scholar',war:.7,rd:1.5,trade:1},merchant:{n:'Merchant',war:.6,rd:1,trade:1.5}};
 const PERS_KEYS=Object.keys(PERS);
 const pickPers=()=>PERS_KEYS[(rnd()*PERS_KEYS.length)|0];
-function genRegions(w,h,sd){
-  pv=new Uint16Array(N);PR=[null];pcnt=[null];
-  let s=(sd^0x7f4a7c15)>>>0;
-  const R=()=>{s=(s+0x6D2B79F5)>>>0;let t=s;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};
-  let land=0;for(let i=0;i<N;i++)if(terr[i]>=2)land++;
-  if(!land)return;
-  const K=clamp(Math.round(land/520),6,170),md=Math.sqrt(land/K)*.75,fr=[];
-  const mk=i=>{const id=PR.length;PR.push({id,n:genName(),seed:i,area:0});pcnt.push(new Map());pv[i]=id;fr.push(i)};
-  for(let t=0;t<K*60&&PR.length<=K;t++){
-    const i=(R()*N)|0;if(terr[i]<2||pv[i])continue;
-    const x=i%w,y=(i/w)|0;let ok=true;
-    for(let q=1;q<PR.length;q++){const si=PR[q].seed,dx=si%w-x,dy=((si/w)|0)-y;if(dx*dx+dy*dy<md*md){ok=false;break}}
-    if(ok)mk(i);
-  }
-  const cand=[];
-  const grow=()=>{
-    while(fr.length){
-      const k=(R()*fr.length)|0,i=fr[k],x=i%w;cand.length=0;
-      if(x>0&&terr[i-1]>=2&&!pv[i-1])cand.push(i-1);
-      if(x<w-1&&terr[i+1]>=2&&!pv[i+1])cand.push(i+1);
-      if(i>=w&&terr[i-w]>=2&&!pv[i-w])cand.push(i-w);
-      if(i<N-w&&terr[i+w]>=2&&!pv[i+w])cand.push(i+w);
-      if(!cand.length){fr[k]=fr[fr.length-1];fr.pop();continue}
-      const j=cand[(R()*cand.length)|0];pv[j]=pv[i];fr.push(j);
-    }
-  };
-  grow();
-  for(let i=0;i<N&&PR.length<4000;i++)if(terr[i]>=2&&!pv[i]){mk(i);grow()}
-  for(let i=0;i<N;i++)if(pv[i]){const P=PR[pv[i]];P.area++;P.sn=(P.sn||0)+1;P.sx=(P.sx||0)+i%w;P.sy=(P.sy||0)+((i/w)|0)}
-}
 const PSTC={province:[120,190,120],state:[90,150,230],autonomy:[170,110,220],colony:[230,150,70],occupied:[220,80,80]};
 const PRC=[];
 function provColor(p){if(!p)return[90,90,90];let k=PRC[p];if(!k){const c=hsl2rgb((p*137.508)%360,.55,.52);k=PRC[p]=[c[0],c[1],c[2]]}return k}
 function pstColor(c,p){const r=c.pst&&c.pst.get(p);return PSTC[r?r.st:'province']}
 function newPRec(st,pol){return{st:st||'province',loy:64,since:tickN,pol:pol||'',mn:0,dom:0,domR:0,n:0,dr:0,rd:0,ec:null,rc:null}}
-function provEnsure(c){
-  if(!c.pst)c.pst=new Map();
-  for(let p=1;p<PR.length;p++){
-    const n=pcnt[p].get(c.id)||0;
-    if(n>=4){if(!c.pst.has(p))c.pst.set(p,newPRec())}else if(c.pst.has(p))c.pst.delete(p);
+/* ---- provinces are made by each country from its own land (seats are its capital and cities) ---- */
+function pnew(c,name,seed){const id=PR.length;PR.push({id,c:c.id,n:name||genName(),seed,area:0,sn:0,sx:0,sy:0,born:tickN});return id}
+function provOk(p,o){const P=PR[p];return !!P&&!P.dead&&P.c===o}
+function provOwn(i,newId){
+  const p=pv[i],P=PR[p];if(!P||P.c===newId)return;
+  let q=0;
+  if(newId){
+    const nc=countries[newId-1],m=nc.inh&&nc.inh.get(p);
+    if(m&&provOk(m,newId))q=m;
+    else{
+      const x=i%W;let j;
+      if(x>0&&owner[j=i-1]===newId&&pv[j]&&provOk(pv[j],newId))q=pv[j];
+      else if(x<W-1&&owner[j=i+1]===newId&&pv[j]&&provOk(pv[j],newId))q=pv[j];
+      else if(i>=W&&owner[j=i-W]===newId&&pv[j]&&provOk(pv[j],newId))q=pv[j];
+      else if(i<N-W&&owner[j=i+W]===newId&&pv[j]&&provOk(pv[j],newId))q=pv[j];
+    }
+  }
+  pv[i]=q;
+}
+let PTG=null;
+// give every unassigned pixel of country c a province: flood from existing provinces, new provinces for cut-off pieces
+function provAssign(c,U){
+  if(!PTG||PTG.length!==N)PTG=new Uint8Array(N);
+  const o=c.id,tg=PTG,q=[];
+  for(const i of U)tg[i]=1;
+  const nb=i=>{const x=i%W,r=[];if(x>0)r.push(i-1);if(x<W-1)r.push(i+1);if(i>=W)r.push(i-W);if(i<N-W)r.push(i+W);return r};
+  for(const i of U){
+    for(const j of nb(i))if(owner[j]===o&&tg[j]===0&&pv[j]){pv[i]=pv[j];tg[i]=0;q.push(i);break}
+  }
+  for(let h=0;h<q.length;h++){const j=q[h];for(const n of nb(j))if(tg[n]===1&&owner[n]===o){pv[n]=pv[j];tg[n]=0;q.push(n)}}
+  let rest=U.filter(i=>tg[i]===1);
+  if(rest.length){
+    const ci=rest.indexOf(c.capital);if(ci>0){rest[ci]=rest[0];rest[0]=c.capital}
+    for(const s of rest){
+      if(tg[s]!==1)continue;
+      const id=pnew(c,null,s),st=[s];tg[s]=0;pv[s]=id;
+      for(let h=0;h<st.length;h++){const j=st[h];for(const n of nb(j))if(tg[n]===1&&owner[n]===o){tg[n]=0;pv[n]=id;st.push(n)}}
+    }
+  }
+  for(const i of U)tg[i]=0;
+}
+function provBuild(){
+  const un=new Map();
+  for(let i=0;i<N;i++){
+    const o=owner[i];if(!o)continue;
+    if(!provOk(pv[i],o)){pv[i]=0;let L=un.get(o);if(!L)un.set(o,L=[]);L.push(i)}
+  }
+  for(const [o,U] of un){const c=countries[o-1];if(c&&c.alive)provAssign(c,U)}
+  // member lists + centroid stats
+  const lists=new Map();
+  for(let q=1;q<PR.length;q++){const P=PR[q];if(P){P.area=0;P.sn=0;P.sx=0;P.sy=0}}
+  for(let i=0;i<N;i++){
+    const p=pv[i];if(!p||!owner[i])continue;
+    let L=lists.get(p);if(!L)lists.set(p,L=[]);L.push(i);
+    const P=PR[p];P.area++;P.sn++;P.sx+=i%W;P.sy+=(i/W)|0;
+  }
+  const byC=new Map();
+  for(const [p] of lists){const o=PR[p].c;let a=byC.get(o);if(!a)byC.set(o,a=[]);a.push(p)}
+  for(let q=1;q<PR.length;q++){const P=PR[q];if(P&&!P.dead&&!lists.has(q)&&tickN-P.born>36){P.dead=true}}
+  for(const c of living){if(c.alive&&c.area>0)provBalance(c,byC.get(c.id)||[],lists)}
+  for(const c of countries){
+    if(c.inh){for(const [k,m] of c.inh)if(PR[k]&&(PR[k].dead||!PR[m]||PR[m].dead))c.inh.delete(k);if(!c.inh.size)c.inh=null}
   }
 }
+function provMembersBfs(L,p,a,b){
+  // two-source BFS over members of one province. returns tag array (Map idx->1|2) via scratch
+  const tg=PTG;for(const i of L)tg[i]=3;
+  const q=[a],tagA=[a];tg[a]=1;let q2=null;
+  if(b>=0){q.push(b);tg[b]=2}
+  let last=a;
+  for(let h=0;h<q.length;h++){
+    const j=q[h],x=j%W,t=tg[j];last=j;
+    if(x>0&&tg[j-1]===3){tg[j-1]=t;q.push(j-1)}
+    if(x<W-1&&tg[j+1]===3){tg[j+1]=t;q.push(j+1)}
+    if(j>=W&&tg[j-W]===3){tg[j-W]=t;q.push(j-W)}
+    if(j<N-W&&tg[j+W]===3){tg[j+W]=t;q.push(j+W)}
+  }
+  return last;
+}
+function provBalance(c,pids,lists){
+  if(!PTG||PTG.length!==N)PTG=new Uint8Array(N);
+  const K=clamp(Math.round(Math.sqrt(c.area)/2.4),1,20);
+  const cmap=()=>pids.map(p=>[p,lists.get(p)||[]]);
+  // merge tiny or surplus provinces
+  for(let k=0;k<3&&pids.length>1;k++){
+    let worst=-1,wn=1e9;
+    for(const p of pids){const n=lists.get(p).length;if(n<wn){wn=n;worst=p}}
+    if(!(wn<4||(pids.length>K*1.6+1&&k===0)))break;
+    const L=lists.get(worst);pids.splice(pids.indexOf(worst),1);lists.delete(worst);PR[worst].dead=true;
+    for(const i of L)pv[i]=0;
+    provAssign(c,L);
+    for(const i of L){const q=pv[i];let M=lists.get(q);if(!M){lists.set(q,M=[]);if(!pids.includes(q))pids.push(q)}M.push(i)}
+  }
+  // split the biggest province when the country has too few
+  for(let k=0;k<2&&pids.length<K;k++){
+    let big=-1,bn=0;for(const p of pids){const n=lists.get(p).length;if(n>bn){bn=n;big=p}}
+    if(bn<10)break;
+    const L=lists.get(big),P=PR[big];
+    let A=P.seed;if(pv[A]!==big){let cx=P.sx/P.sn,cy=P.sy/P.sn,bd=1e18;for(const i of L){const d=(i%W-cx)**2+(((i/W)|0)-cy)**2;if(d<bd){bd=d;A=i}}}
+    // farthest point from A: prefer a city
+    const far=provMembersBfs(L,big,A,-1);for(const i of L)PTG[i]=0;
+    let B=far,bestD=-1;
+    for(const ct of CITIES){if(ct.dead||ct.c!==c.id||pv[ct.i]!==big)continue;const d=d2(ct.i,A);if(d>bestD&&d>=bn*.45){bestD=d;B=ct.i}}
+    if(B===A)break;
+    provMembersBfs(L,big,A,B);
+    const mine=[],other=[];
+    for(const i of L){if(PTG[i]===2)other.push(i);else mine.push(i);PTG[i]=0}
+    if(other.length<3||mine.length<3)break;
+    const id=pnew(c,null,B);
+    for(const i of other)pv[i]=id;
+    lists.set(big,mine);lists.set(id,other);pids.push(id);
+    const r0=c.pst&&c.pst.get(big);if(!c.pst)c.pst=new Map();
+    c.pst.set(id,r0?Object.assign({},r0,{ec:null,rc:null,dr:0,rd:0}):newPRec());
+    for(const q of [big,id]){const R=PR[q];R.area=0;R.sn=0;R.sx=0;R.sy=0;for(const i of lists.get(q)){R.area++;R.sn++;R.sx+=i%W;R.sy+=(i/W)|0}}
+  }
+  // sync status records
+  if(!c.pst)c.pst=new Map();
+  const set=new Set(pids);
+  for(const p of pids)if(!c.pst.has(p))c.pst.set(p,newPRec());
+  for(const p of [...c.pst.keys()])if(!set.has(p))c.pst.delete(p);
+}
 function provScan(){
-  for(const c of living){provEnsure(c);for(const r of c.pst.values()){r.n=0;r.m=0;r.ec=new Map();r.rc=new Map()}}
+  provBuild();
+  for(const c of living){if(!c.pst)c.pst=new Map();for(const r of c.pst.values()){r.n=0;r.m=0;r.ec=new Map();r.rc=new Map()}}
   for(let i=0;i<N;i++){
     const o=owner[i];if(!o)continue;const p=pv[i];if(!p)continue;
     const c=countries[o-1],r=c.pst&&c.pst.get(p);if(!r)continue;
@@ -2942,7 +3029,10 @@ function occupy(win,lose,tiles){
   const pol=big?pickPolicy(win,share):'assimilate';
   const st=pol==='autonomy'?'autonomy':(win.tech-lose.tech>=.8&&win.ideology==='imperialism'&&share>.5)?'colony':'occupied';
   for(const [p,n] of regs)if(n>=3){
-    let r=win.pst.get(p);if(!r){r=newPRec();win.pst.set(p,r)}
+    if(!win.inh)win.inh=new Map();
+    let np=win.inh.get(p);
+    if(!np||!provOk(np,win.id)){{let nm=PR[p].n;for(const q of win.pst.keys())if(PR[q]&&PR[q].n===nm){nm=genName();break}np=pnew(win,nm,PR[p].seed)}win.inh.set(p,np)}
+    let r=win.pst.get(np);if(!r){r=newPRec();win.pst.set(np,r)}
     r.st=st;r.since=tickN;r.pol=pol;r.loy=Math.min(r.loy,pol==='autonomy'?68:48);
   }
   if(!big)return;
@@ -3068,7 +3158,7 @@ function tradeStep(){
 }
 function tradeGain(c){return 1+Math.min(.3,(c.tradeV||0)/Math.max(1,c.gdp))}
 function provTick(){
-  provScan();
+  cityTick();provScan();
   for(const c of living)if(c.alive){if(!c.pers)c.pers=pickPers();provStep(c)}
   tradeStep();
   if(typeof ready!=='undefined'&&ready&&(mode==='pstatus')){paintAll();flush(true)}
@@ -3308,6 +3398,73 @@ function smoothOwners(){
     setOwner(i,b);
   }
 }
+/* ================= cities ================= */
+function citySite(i){return (riv[i]?.55:0)+(coast[i]?.5:0)+(res[i]===1?.6:0)+(ore[i]?.15:0)+(terr[i]===3?.1:0)-(elev&&elev[i]>.78?.5:0)}
+function cityAdd(c,i,cap){
+  if(CITY_AT.has(i))return CITY_AT.get(i);
+  const ct={id:CITIES.length,n:genName(),i,c:c.id,pop:Math.max(200,c.pop*(cap?.08:.02)),born:tickN,cap:!!cap,site:citySite(i),boost:.75+rnd()*.7,dead:false};
+  CITIES.push(ct);CITY_AT.set(i,ct);return ct;
+}
+function cityDel(ct){ct.dead=true;if(CITY_AT.get(ct.i)===ct)CITY_AT.delete(ct.i)}
+function cityOwn(i,old,newId){
+  const ct=CITY_AT.get(i);if(!ct)return;
+  if(!newId){cityDel(ct);return}
+  const c=countries[newId-1];
+  ct.c=newId;ct.cap=c.capital===i;
+  if(old&&tickN>0){
+    ct.pop*=.78;
+    if(ct.pop>c.pop*.05&&tickN-(ct.lastLog||-999)>12*3){
+      ct.lastLog=tickN;
+      log(`The ${c.full} takes the city of ${ct.n}`,'war',[newId,old]);
+    }
+  }
+}
+function cityTick(){
+  const byC=new Map();
+  for(const ct of CITIES){
+    if(ct.dead)continue;
+    const o=owner[ct.i];
+    if(!o){cityDel(ct);continue}
+    ct.c=o;
+    let a=byC.get(o);if(!a)byC.set(o,a=[]);a.push(ct);
+  }
+  for(const c of living){
+    if(!c.alive||c.area<=0)continue;
+    let L=byC.get(c.id);if(!L)byC.set(c.id,L=[]);
+    // the capital is always a city
+    if(c.capital>=0&&owner[c.capital]===c.id){
+      let cc=CITY_AT.get(c.capital);
+      if(!cc){cc=cityAdd(c,c.capital,true);L.push(cc)}
+      for(const ct of L)ct.cap=ct===cc;
+    }
+    // found new cities slowly
+    const T=clamp(Math.round(Math.sqrt(c.area)/2.5+c.tech*.4),1,26);
+    if(L.length<T&&rnd()<.5){
+      const dmin=clamp(Math.sqrt(c.area/T)*.85,3,16);let best=-1,bs=-9;
+      for(let t=0;t<40;t++){
+        const i=randOwned(c);if(i<0||terr[i]<2||CITY_AT.has(i))continue;
+        let ok=true;for(const ct of L)if(d2(ct.i,i)<dmin*dmin){ok=false;break}
+        if(!ok)continue;
+        const s=citySite(i)+rnd()*.35;if(s>bs){bs=s;best=i}
+      }
+      if(best>=0){const ct=cityAdd(c,best,false);L.push(ct);if(tickN>0&&c.area>=30&&rnd()<.5)log(`The ${c.full} founds the city of ${ct.n}`,'politics',[c.id])}
+    }
+    // urban share grows with technology
+    const u=clamp(.04+.04*c.tech,.04,.5);c.urb=u;
+    let sw=0;const age=ct=>Math.min(1,(tickN-ct.born)/(12*180));
+    for(const ct of L){ct.w=(1+age(ct)*1.3)*(1+ct.site)*(ct.cap?2.2:1)*ct.boost;sw+=ct.w}
+    for(const ct of L){const tg=sw?c.pop*u*ct.w/sw:0;ct.pop+=(tg-ct.pop)*.35}
+  }
+}
+function citiesOf(c){const r=[];for(const ct of CITIES)if(!ct.dead&&ct.c===c.id)r.push(ct);return r.sort((a,b)=>b.pop-a.pop)}
+function cityHtml(c){
+  const L=citiesOf(c);
+  let h=`<dl class="kv">`+kv('Cities',`${L.length} <span class="muted">· urban share ${Math.round((c.urb||0)*100)}% of people</span>`)+`</dl>`;
+  for(const ct of L.slice(0,10)){
+    h+=`<div class="prow"><i class="dot" style="background:${ct.cap?'#f2c94c':'#cfd8dc'}"></i><span class="lb"><b>${esc(ct.n)}</b> <span class="muted">${ct.cap?'capital · ':''}${fmt(ct.pop)} people · (${ct.i%W}, ${(ct.i/W)|0})</span></span></div>`;
+  }
+  return h;
+}
 
 /* ================= UI: shared helpers ================= */
 const $=s=>document.querySelector(s);
@@ -3371,9 +3528,22 @@ function drawOverlay(){
       if(c.area>=8){octx.fillStyle='#fff';octx.fill()}
     }
   }
+  if($('#tgCities').checked&&s>=1.2){
+    octx.textAlign='center';octx.textBaseline='top';octx.lineJoin='round';octx.font='600 10px Arial,sans-serif';octx.lineWidth=3;
+    for(const ct of CITIES){
+      if(ct.dead)continue;
+      if(!ct.cap&&s<2.4)continue;
+      const x=X(ct.i),y=Y(ct.i);if(x<-30||y<-20||x>w+30||y>h+20)continue;
+      const r=clamp(1.3+Math.log10(Math.max(100,ct.pop))*.75-1.5,1.4,5.2)*Math.min(1.6,Math.max(.8,s/4));
+      octx.beginPath();
+      if(ct.cap){octx.rect(x-r-.8,y-r-.8,2*r+1.6,2*r+1.6);octx.fillStyle='#f2c94c'}else{octx.arc(x,y,r,0,6.283);octx.fillStyle='#fff'}
+      octx.lineWidth=1.4;octx.strokeStyle='rgba(0,0,0,.85)';octx.fill();octx.stroke();
+      if(s>=(ct.cap?3.6:6.5)){octx.lineWidth=3;octx.strokeStyle='rgba(8,14,18,.85)';octx.fillStyle=ct.cap?'#ffe27a':'#fff';octx.strokeText(ct.n,x,y+r+2);octx.fillText(ct.n,x,y+r+2)}
+    }
+  }
   if(($('#tgPNames').checked||mode==='provinces'||mode==='pstatus')&&pv){
     octx.textAlign='center';octx.textBaseline='middle';octx.lineJoin='round';octx.font='600 11px "Arial Narrow",Arial,sans-serif';octx.lineWidth=3;octx.strokeStyle='rgba(8,14,18,.85)';octx.fillStyle='#fff';
-    for(let q=1;q<PR.length;q++){const P=PR[q];if(!P.sn||Math.sqrt(P.area)*s<26)continue;const x=view.tx+(P.sx/P.sn+.5)*s,y=view.ty+(P.sy/P.sn+.5)*s;if(x<-50||y<-10||x>w+50||y>h+10)continue;octx.strokeText(P.n,x,y);octx.fillText(P.n,x,y)}
+    for(let q=1;q<PR.length;q++){const P=PR[q];if(!P||P.dead||!P.sn||Math.sqrt(P.area)*s<26)continue;const x=view.tx+(P.sx/P.sn+.5)*s,y=view.ty+(P.sy/P.sn+.5)*s;if(x<-50||y<-10||x>w+50||y>h+10)continue;octx.strokeText(P.n,x,y);octx.fillText(P.n,x,y)}
   }
   if($('#tgLabel').checked){
     octx.textAlign='center';octx.textBaseline='middle';octx.lineJoin='round';
@@ -3462,8 +3632,9 @@ function hoverAt(mx,my){
   if(!ready)return;const i=pixelAt(mx,my),el=$('#hover');
   if(i<0){el.textContent='';hideTip();return}
   const o=owner[i],t=TERR[terr[i]];
+  let ct=CITY_AT.get(i);if(!ct)for(const j of [i-1,i+1,i-W,i+W]){if(CITY_AT.has(j)){ct=CITY_AT.get(j);break}}
   const pr=pv&&pv[i]?PR[pv[i]]:null,prr=o&&pr&&countries[o-1].pst?countries[o-1].pst.get(pv[i]):null;
-  el.textContent=`(${i%W}, ${(i/W)|0})  ${t.n}`+(pr?`  ·  ${pr.n}${prr?' ('+PST[prr.st].n.toLowerCase()+')':''}`:'')+(o?`  ·  ${countries[o-1].full}  ·  ${GOV[countries[o-1].gov].n}  ·  ${ETH[eth[i]]?ETH[eth[i]].n:''} people  ·  ${RELIG[rg[i]]?RELIG[rg[i]].n:''}`:(terr[i]>=2?'  ·  unclaimed land':''));
+  el.textContent=`(${i%W}, ${(i/W)|0})  ${t.n}`+(ct&&!ct.dead?`  ·  ${ct.cap?'Capital ':'City '}${ct.n} (${fmt(ct.pop)})`:'')+(pr?`  ·  ${pr.n}${prr?' ('+PST[prr.st].n.toLowerCase()+')':''}`:'')+(o?`  ·  ${countries[o-1].full}  ·  ${GOV[countries[o-1].gov].n}  ·  ${ETH[eth[i]]?ETH[eth[i]].n:''} people  ·  ${RELIG[rg[i]]?RELIG[rg[i]].n:''}`:(terr[i]>=2?'  ·  unclaimed land':''));
   showTip(i,mx,my);
 }
 let tool='';
@@ -3520,11 +3691,11 @@ $('#zfit').onclick=fitView;
 $('#tgLabel').onchange=()=>{ovDirty=true};
 $('#tgPNames').onchange=$('#tgCaps').onchange=()=>{ovDirty=true};
 $('#tgFields').onchange=()=>{showFields=$('#tgFields').checked;if(ready){paintAll();flush(true)}};
-const TG_IDS=['tgLabel','tgPNames','tgCaps','tgRivers','tgFields','tgProv','tgArmy','tgTrade'];
+const TG_IDS=['tgLabel','tgPNames','tgCaps','tgRivers','tgFields','tgProv','tgArmy','tgTrade','tgCities'];
 function setAllToggles(v){for(const id of TG_IDS){const el=$('#'+id);if(el&&el.checked!==v&&!el.disabled){el.checked=v;el.dispatchEvent(new Event('change'))}}}
 $('#tgAll').onclick=()=>setAllToggles(true);$('#tgNone').onclick=()=>setAllToggles(false);
 $('#tgProv').onchange=()=>{showProv=$('#tgProv').checked;if(ready){paintAll();flush(true)}};
-$('#tgTrade').onchange=()=>{ovDirty=true};
+$('#tgTrade').onchange=$('#tgCities').onchange=()=>{ovDirty=true};
 $('#tgRivers').onchange=()=>{showRiv=$('#tgRivers').checked;if(ready){paintAll();flush(true)}};
 function syncRivToggle(){const t=$('#tgRivers');t.disabled=!useRivers;$('#rivNote').hidden=useRivers;if(!useRivers)t.checked=false;else t.checked=showRiv}
 let dipSig='';
@@ -4319,7 +4490,7 @@ function editBody(c){
     if(!rows.length)ph+='<p class="note">No provinces yet. They appear after the next new year.</p>';
     for(const [p,r] of rows.slice(0,40)){
       const e=ETH[r.dom],l=Math.round(r.loy);
-      ph+=`<div class="pedit"><div class="ph"><i class="dot" style="background:${e?rgbCss(e.c):'#888'}"></i><b>${esc(PR[p].n)}</b> <span class="muted">${r.n} px · ${e?esc(e.n):''}</span></div><div class="ps2"><select data-ed="ps_${p}_st" aria-label="Status">${opt(stO,r.st)}</select><select data-ed="ps_${p}_pol" aria-label="Policy">${opt(poO,r.pol)}</select><div class="rng"><input type="range" data-ed="ps_${p}_loy" min="0" max="100" step="1" value="${l}" aria-label="Loyalty"><output>${l}</output></div></div></div>`;
+      ph+=`<div class="pedit"><div class="ph"><i class="dot" style="background:${e?rgbCss(e.c):'#888'}"></i><b>${esc(PR[p]?PR[p].n:'?')}</b> <span class="muted">${r.n} px · ${e?esc(e.n):''}</span></div><div class="ps2"><select data-ed="ps_${p}_st" aria-label="Status">${opt(stO,r.st)}</select><select data-ed="ps_${p}_pol" aria-label="Policy">${opt(poO,r.pol)}</select><div class="rng"><input type="range" data-ed="ps_${p}_loy" min="0" max="100" step="1" value="${l}" aria-label="Loyalty"><output>${l}</output></div></div></div>`;
     }
     h+=sect('e_prov','Provinces and status',ph+'</div>');
     const rs=[...(c.routes||new Map())].sort((a,b)=>b[1].v-a[1].v),em=[...(c.embargo||[])];
@@ -4340,7 +4511,7 @@ function applyField(c,k,v){
   let msg='';
   if(k.startsWith('ps_')){
     const [,p,f]=k.split('_'),r=c.pst&&c.pst.get(+p);if(!r)return '';
-    if(f==='st'&&PST[v]){r.st=v;r.since=tickN;msg=`${PR[+p].n} is now ${PST[v].n.toLowerCase()}.`}
+    if(f==='st'&&PST[v]){r.st=v;r.since=tickN;msg=`${PR[+p]?PR[+p].n:'Province'} is now ${PST[v].n.toLowerCase()}.`}
     else if(f==='loy')r.loy=clamp(+v,0,100);
     else if(f==='pol')r.pol=v;
     if(mode==='pstatus'&&ready){paintAll();flush(true)}
@@ -4500,6 +4671,7 @@ function newInfo(c){
   if(c.plague&&plague)t+=kv('Crisis',`<span style="color:var(--bad)">${esc(plague.name)} rages here</span>`);
   t+='</dl>';
   h+=sect('land','Land, resources and era',t);
+  h+=sect('cities','Cities',cityHtml(c));
   h+=sect('prov','Provinces and status',provHtml(c));
   h+=sect('trade','Trade routes',tradeHtml(c));
   let d='<dl class="kv">';
@@ -4545,7 +4717,7 @@ function provHtml(c){
   let h=`<dl class="kv">`+kv('Character',`${PERS[c.pers||'builder'].n} <span class="muted">· shapes war, research and trade</span>`)+kv('Provinces',`${rows.length} <span class="muted">· ${Object.keys(cnt).map(k=>cnt[k]+' '+PST[k].n.toLowerCase()).join(', ')||'none'}</span>`)+kv('Average loyalty',`${Math.round(c.provLoy||60)}%`)+`</dl>`;
   for(const [p,r] of rows.slice(0,40)){
     const e=ETH[r.dom],col=e?rgbCss(e.c):'#888',l=Math.round(r.loy);
-    h+=`<div class="prow"><i class="dot" style="background:${col}"></i><span class="lb"><b>${esc(PR[p].n)}</b> <span class="muted">${PST[r.st].n.toLowerCase()}${r.pol&&r.st!=='province'?' · '+r.pol:''} · ${r.n} px · ${e?esc(e.n):''}</span></span><span class="lbar" title="Loyalty ${l}%"><i style="width:${l}%;background:${l<30?'var(--bad,#e5676b)':l<55?'#e9b45c':'#8fd6a3'}"></i></span></div>`;
+    h+=`<div class="prow"><i class="dot" style="background:${col}"></i><span class="lb"><b>${esc(PR[p]?PR[p].n:'?')}</b> <span class="muted">${PST[r.st].n.toLowerCase()}${r.pol&&r.st!=='province'?' · '+r.pol:''} · ${r.n} px · ${e?esc(e.n):''}</span></span><span class="lbar" title="Loyalty ${l}%"><i style="width:${l}%;background:${l<30?'var(--bad,#e5676b)':l<55?'#e9b45c':'#8fd6a3'}"></i></span></div>`;
   }
   return h;
 }
@@ -4668,7 +4840,7 @@ function buildSave(){
   return JSON.stringify({v:7,wf:worldFirst,world:{w:W,h:H,seed:worldInfo.seed,landPct:worldInfo.landPct,scale:worldInfo.scale,map:worldInfo.map||'',rivers:useRivers},
     tickN,yearBase,CHAOS,REF,nInitial,evSeq,colorIdx,MIXN,warSeq,climate,plague,counters:Object.assign({},counters),
     chron:chron.slice(0,300),events:events.slice(0,300),series,wars:ws,unions,truce:[...truce],LH,ETH,RELIG,ETH_USED:[...ETH_USED],REL_USED:[...REL_USED],MIXES:[...MIXES],usedNames:[...usedNames],
-    countries:cs,own:rle(owner),eth:rle(eth),rg:rle(rg)},jrep);
+    PR:PR.map(P=>P&&{id:P.id,c:P.c,n:P.n,seed:P.seed,born:P.born,dead:P.dead||0}),CITIES:CITIES.filter(x=>!x.dead),pvr:rle(pv),countries:cs,own:rle(owner),eth:rle(eth),rg:rle(rg)},jrep);
 }
 async function pack(str){
   try{if(typeof CompressionStream!=='undefined'){const cs=new CompressionStream('gzip'),w=cs.writable.getWriter();w.write(new TextEncoder().encode(str));w.close();
@@ -4706,7 +4878,8 @@ function loadSave(str){
   for(const c of countries){if(!(c.techs instanceof Set)){Object.assign(c,{rs:'',rp:0,rn:0,rd:.06,edSp:.06,edu:NaN,mood:58,morale:55,capacity:0,budLock:false});initTechs(c,c.tech||.3)}c.peakArea=c._keep.pa;c.lastAttacker=c._keep.la;delete c._keep}
   tickN=d.tickN;yearBase=d.yearBase||1;CHAOS=d.CHAOS;REF=d.REF;nInitial=d.nInitial;evSeq=d.evSeq;colorIdx=d.colorIdx;MIXN=d.MIXN;warSeq=d.warSeq;climate=d.climate;plague=d.plague;
   for(const k in counters)counters[k]=d.counters[k]||0;
-  worldFirst=d.wf||{};setTimeout(()=>{if(typeof tradeStep==='function'){tradeStep();ovDirty=true}},0);chron=d.chron;events=d.events;series=d.series;unions=d.unions;
+  PR=(d.PR||[null]).map(P=>P&&Object.assign({area:0,sn:0,sx:0,sy:0},P));if(d.pvr)unrle(d.pvr,pv);CITIES=(d.CITIES||[]).map((x,k)=>{x.id=k;x.dead=false;return x});CITY_AT=new Map();for(const x of CITIES)CITY_AT.set(x.i,x);
+  worldFirst=d.wf||{};if(!d.pvr){living=countries.filter(c=>c.alive);cityTick();provScan()}setTimeout(()=>{if(typeof tradeStep==='function'){tradeStep();ovDirty=true}},0);chron=d.chron;events=d.events;series=d.series;unions=d.unions;
   wars=d.wars;const byId=new Map(wars.map(w=>[w.wid,w]));for(const w of wars){w.master=w.master?byId.get(w.master)||null:null;if(!w.fr)w.fr=[]}
   truce.clear();for(const [k,v] of d.truce)truce.set(k,v);
   snaps=[];living=countries.filter(c=>c.alive);
