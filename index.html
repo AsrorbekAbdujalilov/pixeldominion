@@ -33,7 +33,7 @@ button{cursor:pointer}
 .btn{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:6px 11px;line-height:1.2}
 .btn:hover{border-color:var(--mute)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.tsl{display:inline-flex;align-items:center;gap:4px;font:12px var(--f-mono)}.tsl select{font:12px var(--f-mono);padding:5px 4px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:inherit}.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .seg button{background:var(--panel);border:0;border-right:1px solid var(--line);padding:6px 10px;font:12px var(--f-mono)}
 .seg button:last-child{border-right:0}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
@@ -355,6 +355,11 @@ body{padding:0;overflow:hidden}
 .prow{display:flex;gap:8px;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.07)}.prow .lb{flex:1;min-width:0}.lbar{width:54px;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden;flex:none}.lbar i{display:block;height:100%}
 .pedit{border-bottom:1px solid rgba(255,255,255,.07);padding:7px 0}.pedit .ph{font-size:12.5px;margin-bottom:5px}.sh2{margin:14px 0 4px;font-size:11.5px;opacity:.7;text-transform:uppercase;letter-spacing:.06em}.pname{width:150px;max-width:55%;font:inherit;padding:2px 6px}.pb{margin:0 0 5px}.ps2{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.ps2 select{flex:1;min-width:104px}.ps2 .rng{flex:1;min-width:110px}
 .lnbox{overflow:auto;max-height:58vh;border:1px solid var(--line);border-radius:8px;padding:6px;margin-top:6px}#lnChart.lnbox{max-height:none}
+@media (min-width:761px){.panel.ted{width:min(800px,calc(100% - 24px));height:min(calc(100% - 24px),640px);top:auto;bottom:12px}
+.panel.ted .ed{grid-template-columns:104px 150px minmax(0,1fr)}
+.panel.ted .snav button{font-size:12.5px;padding:6px 8px}}
+.clock{font-size:14px}
+.panel.ted{background:rgba(14,22,28,.95)}
 </style>
 
 <div class="app" id="app">
@@ -372,6 +377,7 @@ body{padding:0;overflow:hidden}
         <button type="button" data-s="4" aria-pressed="false">4x</button>
         <button type="button" data-s="5" aria-pressed="false">Max</button>
       </div>
+      <label class="tsl" title="How much game time passes per real second"><select id="tscale" aria-label="Game time per real second"><option value="0">paused</option><option value="1">1 day</option><option value="3">3 days</option><option value="7">1 week</option><option value="14">2 weeks</option><option value="30">1 month</option><option value="61">2 months</option><option value="91">3 months</option><option value="182">6 months</option><option value="365">1 year</option><option value="730">2 years</option><option value="1825">5 years</option><option value="3650">10 years</option></select><span class="muted">/ s</span></label>
     </div>
     <div class="r2">
       <div class="maptools">
@@ -800,7 +806,7 @@ function genResources(w,h,sd){
     else if((t===5||t===4||t===3)&&c3>.84)o=6;
     ore[i]=o;
   }
-  pv=new Int32Array(N);PR=[null];CITIES=[];CITY_AT=new Map();
+  pv=new Int32Array(N);PR=[null];EXPS=[];CITIES=[];CITY_AT=new Map();
 }
 function paintPixel(i){
   const t=terr[i],o=owner[i],T=TERR[t],m=shade[i]/128;
@@ -2080,7 +2086,7 @@ function processWars(){
     if(did&&!w.stop)frontStep(w,A,B);
     if(w.stop){w.stop=false;w.f2=null;freeCmds(w);endWar(wi,w,false)}
   }
-  navyTick();
+  navyTick();expStep();
 }
 function endWar(wi,w,silent){
   freeCmds(w);
@@ -3217,6 +3223,7 @@ function stageYearly(){
   const T=tickN;
   YQ=[[T+1,()=>cityTick()],[T+2,()=>provBuild()],[T+3,()=>provScan(true)],[T+4,()=>provSteps(0)],[T+5,()=>provSteps(1)],
       [T+6,()=>{lineageYear()}],[T+7,()=>tradeStep(false)],[T+9,()=>tradeDomestic()],
+      [T+8,()=>expAI()],
       [T+10,()=>{if(typeof ready!=='undefined'&&ready&&mode==='pstatus'){paintAll();flush(true)}}]];
 }
 function runStaged(){
@@ -3775,6 +3782,7 @@ function milHtml(c){
   let h=`<dl class="kv">`+kv('Army',`${fmt(c.army)} <span class="muted">· strength ${fmt(c.power)}</span>`)+kv('Home guard',`${Math.round(hf*100)}% <span class="muted">· ${c.homeLock?'set by decree':'chosen by the country'}; the rest is free to march</span>`)+`</dl>`;
   for(const d of det)h+=`<div class="prow"><span class="lb"><b>${esc(d.name)}</b> <span class="muted">${fmt(d.n)}</span></span><span class="lbar" title="${Math.round(d.share*100)}%"><i style="width:${Math.round(d.share*100)}%;background:#8fb8e8"></i></span></div>`;
   if(mixOf(c)[4]>.01)h+=kvl('Fleet',`${fmt(fleetP(c))} <span class="muted">· ${esc(unitName(c,4).toLowerCase())} · condition ${Math.round(fleetHP(c)*100)}%</span>`);
+  {const my=EXPS.filter(e=>e.c===c.id);for(const e of my)h+=kvl('Expedition',`${e.kind==='colony'?'settlers':'troops'} ${fmt(e.size)} <span class="muted">· arrives in ${Math.max(0,e.arrive-tickN)} months</span>`)}
   if(c.blk>.05){const by=countries[c.blkBy-1];h+=`<p class="note warn">Blockaded by ${by?esc(by.base):'an enemy fleet'}: ports and sea trade are strangled (${Math.round(c.blk*100)}%).</p>`}
   const ov=(c.reachR||0);h+=kvl('Reach',`${ov<.35?'firmly held':ov<.7?'stretched':ov<1.1?'overextended':'barely governable'} <span class="muted">· far provinces cost ${Math.round(ov*28)}% of output, slower armies and supplies</span>`);
   const cs=(c.cmds||[]).filter(k=>!k.dead);
@@ -3910,6 +3918,169 @@ function navyTick(){
     if(lv>tgt.blk){tgt.blk=lv;tgt.blkBy=by.id}
   }
 }
+/* ================= naval expeditions: colonies and overseas landings ================= */
+let EXPS=[];
+const shipSpeed=c=>3+c.tech*1.2+(has(c,'steamship')?5:0)+(has(c,'compass')?1:0);
+function adjWater(j){const x=j%W,y=(j/W)|0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=W||ny>=H)continue;if(terr[ny*W+nx]<2)return ny*W+nx}return -1}
+function waterAll(j){const x=j%W,y=(j/W)|0,r=[];for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=W||ny>=H)continue;if(terr[ny*W+nx]<2)r.push(ny*W+nx)}return r}
+// a water tile beside j that lies in the same sea as water tile w2 (or any tile of the big sea when w2<0)
+function seaTile(j,w2){if(PCOMPT!==terr||!PCOMP||PCOMP.length!==N)labelComps();for(const t of waterAll(j))if(w2<0||PCOMP[t]===PCOMP[w2])return t;return -1}
+function expPorts(c){const r=[];for(const ct of citiesOf(c)){const p=nearCoast(c,ct.i);if(p>=0)r.push(p)}if(!r.length){for(let t=0;t<30&&r.length<2;t++){const i=randOwned(c);if(i>=0&&coast[i]&&adjWater(i)>=0)r.push(i)}}return r}
+function expActive(c){let n=0;for(const e of EXPS)if(e.c===c.id)n++;return n}
+function landingNearWater(wt,owner0){
+  const x0=wt%W,y0=(wt/W)|0;
+  for(let r=1;r<=5;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+    if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;
+    const x=x0+dx,y=y0+dy;if(x<0||y<0||x>=W||y>=H)continue;const j=y*W+x;
+    if(terr[j]>=2&&owner[j]===owner0&&(owner0||terr[j]>=3)&&adjWater(j)>=0)return j;
+  }
+  return -1;
+}
+// send a fleet with troops (or settlers) from c's nearest port to a coastal landing spot
+function expLaunch(c,kind,landing,tgtId,silent){
+  if(expActive(c)>=3)return 'That country already has three expeditions at sea.';
+  if(!coastal(c)||c.area<6)return `${c.base} has no coast to sail from.`;
+  const ports=expPorts(c);if(!ports.length)return `${c.base} has no port to sail from.`;
+  let port=ports[0],bd=1e18;for(const p of ports){const d=d2(p,landing);if(seaTile(p,seaTile(landing,-1))<0)continue;const ok=waterAll(p).some(t=>seaTile(landing,t)>=0);if(ok&&d<bd){bd=d;port=p}}
+  let wa=-1,wb=-1;
+  for(const t of waterAll(port)){const u=seaTile(landing,t);if(u>=0){wa=t;wb=u;break}}
+  if(wa<0||wb<0)return 'That shore lies on a different sea; no ship can reach it.';
+  const pts=findPath(wa,wb,true);
+  if(!pts)return 'That shore is too far to reach by sea with this fleet.';
+  const army=Math.max(0,c.army);
+  const size=kind==='colony'?Math.max(6,army*.05):Math.max(10,army*clamp(.12+mixOf(c)[4]*.5,.12,.3));
+  const cost=kind==='colony'?6+c.gdp*.02:size*.4;
+  if(army<size*1.2)return `${c.base} cannot spare the troops.`;
+  if(c.gold<cost)return `${c.base} cannot afford the expedition.`;
+  c.army-=size;c.gold-=cost;
+  const len=pts.length,step=Math.max(1,Math.round(len/60)),q=[];
+  for(let i=0;i<len;i+=step)q.push(pts[i]);if(q[q.length-1]!==pts[len-1])q.push(pts[len-1]);
+  const k=(c.cmds||[]).filter(x=>!x.dead&&!x.on&&x.role==='land').sort((a,b)=>b.skill-a.skill)[0]||newCmd(c,'land');k.on='exp';
+  const e={id:ri(1,2e9),c:c.id,kind,tgt:tgtId||0,port,landing,pts:q,len,t0:tickN,arrive:tickN+Math.max(2,Math.ceil(len/shipSpeed(c))),size,cmd:k.id};
+  EXPS.push(e);
+  if(!silent){
+    const t=tgtId?countries[tgtId-1]:null;
+    log(kind==='colony'?`The ${c.full} sends ships to settle a distant shore`:`The ${c.full} sails an invasion fleet against the ${t?t.full:'enemy'}`,'war',t?[c.id,t.id]:[c.id]);
+  }
+  return '';
+}
+// the player (or code) points at a shore: free land is settled, an enemy shore is invaded
+function expLaunchAt(c,i){
+  if(terr[i]<2)return 'Choose a place on land.';
+  const o=owner[i];
+  if(o===c.id)return 'Choose land outside the country.';
+  let L=i;
+  if(adjWater(L)<0){const r=landingNearWater(adjWater(i)>=0?adjWater(i):-1,o);if(r<0){
+    // search for a coastal pixel of the same owner nearby
+    let best=-1,bd=1e18;const x0=i%W,y0=(i/W)|0;
+    for(let dy=-8;dy<=8;dy++)for(let dx=-8;dx<=8;dx++){const x=x0+dx,y=y0+dy;if(x<0||y<0||x>=W||y>=H)continue;const j=y*W+x;if(terr[j]>=2&&owner[j]===o&&adjWater(j)>=0){const d=dx*dx+dy*dy;if(d<bd){bd=d;best=j}}}
+    if(best<0)return 'That place is not near a shore.';L=best}else L=r}
+  if(o){
+    const t=countries[o-1];if(!t||!t.alive)return 'No one lives there.';
+    if(!c.wars.has(o)){if(c.wars.size>=4)return 'Too many wars already.';declareWar(c,t,null,false,'and prepares a naval invasion')}
+    return expLaunch(c,'invade',L,o);
+  }
+  return expLaunch(c,'colony',L,0);
+}
+function expDone(e,back){
+  const c=countries[e.c-1];if(!c)return;
+  if(back)c.army+=e.size*back;
+  const k=cmdById(c,e.cmd);if(k)k.on='';
+}
+function expResolve(e){
+  const c=countries[e.c-1];if(!c||!c.alive)return;
+  const k=cmdById(c,e.cmd);
+  if(e.kind==='colony'){
+    let L=e.landing;
+    if(owner[L]!==0||terr[L]<3){L=landingNearWater(adjWater(e.landing)>=0?adjWater(e.landing):-1,0);}
+    if(L<0){expDone(e,.9);log(`The ${c.full} finds the shore taken and brings its settlers home`,'politics',[c.id]);return}
+    const n=clamp(8+Math.round(e.size*.12)+Math.round(c.tech*2),8,30);
+    const got=[L],seen=new Set([L]);
+    for(let h=0;h<got.length&&got.length<n;h++){
+      const i=got[h],x=i%W;
+      for(const j of [x>0?i-1:-1,x<W-1?i+1:-1,i>=W?i-W:-1,i<N-W?i+W:-1]){if(j<0||seen.has(j))continue;seen.add(j);if(owner[j]===0&&terr[j]>=2&&got.length<n)got.push(j)}
+    }
+    for(const i of got){if(!eth[i])eth[i]=c.coreEth;if(!rg[i])rg[i]=c.coreRel;setOwner(i,c.id)}
+    const ct=cityAdd(c,L,false);if(ct){ct.pop=Math.max(ct.pop,e.size*8);ct.boost*=1.15}
+    provAssign(c,got);
+    const p=pv[L];if(p&&c.pst){const r=c.pst.get(p)||newPRec('colony');r.st='colony';r.loy=72;r.since=tickN;c.pst.set(p,r)}
+    expDone(e,.5);c.pop+=0;if(k){k.wins++}
+    log(`The ${c.full} founds the colony of ${ct?ct.n:'a new town'} across the sea`,'birth',[c.id]);
+    return;
+  }
+  const t=countries[e.tgt-1];
+  if(!t||!t.alive||!c.wars.has(t.id)){expDone(e,.9);log(`The ${c.full} recalls its fleet from the shores of ${t?t.base:'a lost land'}`,'politics',[c.id]);return}
+  const wt=adjWater(e.landing);
+  let L=owner[e.landing]===t.id?e.landing:landingNearWater(wt,t.id);
+  if(L<0){expDone(e,.9);return}
+  const share=e.size/Math.max(1,c.army+e.size);
+  const w=wars.find(x=>(x.a===c.id&&x.b===t.id)||(x.b===c.id&&x.a===t.id));
+  const seaB=1+.1*clamp(w?(w.a===c.id?w.sc||0:-(w.sc||0)):0,-1,1);
+  const sA=c.power*share*1.6*.85*(.7+rnd()*.6)*mixF(c,t,L,L,false)*cmdF(k)*seaB;
+  const tk=(t.cmds||[]).filter(x=>!x.dead&&x.role==='land')[0];
+  const sB=t.power*(homeF(t)*.6+.3)*(.7+rnd()*.6)*mixF(t,c,L,L,true)*cmdF(tk)*Math.sqrt(TERR[terr[L]].d);
+  if(sA>sB){
+    const m=(sA-sB)/(sA+sB),sz=clamp(Math.round(t.area*(.02+.08*m)),6,70);
+    let reg=collectRegion(t,L,sz,null);
+    {let tc=null,td=1e18;for(const ct of citiesOf(t)){const d=d2(ct.i,L);if(d<td){td=d;tc=ct}}
+     if(tc&&td<=36&&rnd()<.5){const d=Math.sqrt(td);reg=collectRegion(t,L,Math.min(Math.round(t.area*.5),Math.max(sz,Math.round(3.14*(d+1.8)*(d+1.8)))),null)}}
+    if(reg.length>=3){queueTransfer(c,t,reg,true);occupy(c,t,reg);if(w){if(w.a===t.id)w.la+=reg.length;else w.lb+=reg.length}}
+    t.morale=Math.max(0,t.morale-6);c.morale=Math.min(100,c.morale+4);
+    expDone(e,.6);if(k){k.wins++;k.skill=Math.min(1.6,k.skill+.03)}
+    log(`The ${c.full} lands troops on the coast of the ${t.full} and seizes ${reg.length} pixels`,'war',[c.id,t.id]);
+  }else{
+    c.fleetHP=Math.max(.15,fleetHP(c)*.75);t.morale=Math.min(100,t.morale+3);c.morale=Math.max(0,c.morale-4);
+    if(k&&rnd()<.25){k.dead=true;log(`${k.title} ${k.n} of the ${c.full} falls in the landing`,'war',[c.id,t.id])}
+    expDone(e,.12);
+    log(`The ${t.full} throws the ${c.full} landing back into the sea`,'war',[t.id,c.id]);
+  }
+}
+function expStep(){
+  if(!EXPS.length)return;
+  for(let i=EXPS.length-1;i>=0;i--){
+    const e=EXPS[i],c=countries[e.c-1];
+    if(!c||!c.alive){EXPS.splice(i,1);continue}
+    // storms and enemy fleets
+    let risk=has(c,'compass')?.004:.012;
+    for(const w of wars){if(w.a!==c.id&&w.b!==c.id)continue;const sc=w.a===c.id?-(w.sc||0):(w.sc||0);if(sc>.3)risk+=.04*sc}
+    if(rnd()<risk){
+      EXPS.splice(i,1);expDone(e,0);
+      log(`An expedition of the ${c.full} is lost at sea`,'politics',[c.id]);continue;
+    }
+    if(tickN>=e.arrive){EXPS.splice(i,1);expResolve(e)}
+  }
+}
+function expAI(){
+  for(const c of living){
+    if(!c.alive||c.area<20||(c.expCool||0)>tickN)continue;
+    if(!has(c,'sailing')||mixOf(c)[4]<.03||!coastal(c)||c.gold<20||c.army<40||expActive(c)>=2)continue;
+    c.expCool=tickN+ri(18,60);
+    pathBudget=4;
+    // invade an enemy across the water
+    let done=false;
+    for(const id of c.wars){
+      const t=countries[id-1];if(!t||!t.alive||!coastal(t))continue;
+      if(c.neighbors.has(id)&&rnd()<.75)continue;
+      if(c.power<t.power*.6||rnd()<.45)continue;
+      const ports=expPorts(c);if(!ports.length)break;
+      let best=-1,bd=1e18;
+      for(let k=0;k<30;k++){const i=randOwned(t);if(i<0||adjWater(i)<0)continue;for(const p of ports){const d=d2(p,i);if(d<bd){bd=d;best=i}}}
+      if(best>=0&&Math.sqrt(bd)<45*mapSc()*commTech(c)&&expLaunch(c,'invade',best,id)==='')done=true;
+      if(done)break;
+    }
+    if(done||freeLand<40||rnd()<.5)continue;
+    // settle free land overseas
+    const ports=expPorts(c);if(!ports.length)continue;
+    let best=-1,bd=1e18;
+    for(let k=0;k<80;k++){
+      const i=ri(0,N-1);if(owner[i]||terr[i]<3||terr[i]>5||!coast[i]||adjWater(i)<0||CITY_AT.has(i))continue;
+      let ok=true;for(let dy=-3;dy<=3&&ok;dy+=3)for(let dx=-3;dx<=3;dx+=3){const x=(i%W)+dx,y=((i/W)|0)+dy;if(x<0||y<0||x>=W||y>=H)continue;if(owner[y*W+x]===c.id){ok=false;break}}
+      if(!ok)continue;
+      for(const p of ports){const d=d2(p,i);if(d<bd){bd=d;best=i}}
+    }
+    if(best>=0&&Math.sqrt(bd)<38*mapSc()*commTech(c)*(1+c.tech*.08))expLaunch(c,'colony',best,0);
+  }
+}
 
 /* ================= UI: shared helpers ================= */
 const $=s=>document.querySelector(s);
@@ -3921,8 +4092,16 @@ const rgbCss=c=>`rgb(${c[0]},${c[1]},${c[2]})`;
 /* ================= map view ================= */
 const cv=$('#map'),ctx=cv.getContext('2d'),ov=$('#ov'),octx=ov.getContext('2d'),vp=$('#viewport');
 let view={s:1,tx:0,ty:0},imgData=null,sel=0,running=false,speedIdx=2,acc=0,lastTs=0,ready=false,ovDirty=true;
-const SPEEDS=[0,2,6,18,48,160];
-const SPEED_LABEL=['paused','2 months per second','6 months per second','1.5 years per second','4 years per second','as fast as possible'];
+// time runs in simulated days per real second; one simulation step is one month
+const SPEEDS=[0,61,182,548,1460,3650];
+const SPEED_LABEL=['paused','2 months per second','6 months per second','1.5 years per second','4 years per second','10 years per second (as fast as your device allows)'];
+let timeDays=61,dayFrac=0,tickCap=false;
+const MLEN=[31,28,31,30,31,30,31,31,30,31,30,31],MNAME=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function setTimeDays(d){
+  timeDays=d;running=d>0;if(d>0)window.lastDays=d;
+  const s=$('#tscale');if(s){const o=s.options&&[...s.options].find(x=>+x.value===d);s.value=o?o.value:'';}
+  document.querySelectorAll('#speed button').forEach(b=>b.setAttribute('aria-pressed',String(SPEEDS[+b.dataset.s]===d)));
+}
 
 function fitView(){
   const vw=vp.clientWidth,vh=vp.clientHeight;if(!vw||!vh)return;
@@ -4092,9 +4271,9 @@ function setTool(t){
   $('#hover').textContent=tool==='found'?'Found nation: click unclaimed land to settle a new state, or click inside a country to carve out a breakaway state.'
     :tool==='faith'?'Found religion: click inside a country to start a new faith in that region.'
     :tool==='ethnic'?'Found ethnicity: click inside a country to turn the surrounding region into a brand new people.'
-    :tool==='prov'?'Create province: click a spot in the selected country; the province around it splits and the spot becomes the new seat. Press Esc to cancel.':tool==='city'?'Found city: click land inside the selected country. Press Esc to cancel.':tool==='capital'?'Move capital: click inside the selected country to place its new capital. Press Esc to cancel.':'';
+    :tool==='prov'?'Create province: click a spot in the selected country; the province around it splits and the spot becomes the new seat. Press Esc to cancel.':tool==='city'?'Found city: click land inside the selected country. Press Esc to cancel.':tool==='exped'?'Launch expedition: click a free shore to settle it, or an enemy shore to invade it. Press Esc to cancel.':tool==='capital'?'Move capital: click inside the selected country to place its new capital. Press Esc to cancel.':'';
   if(tool)toast($('#hover').textContent);
-  if(tool&&tool!=='capital'&&tool!=='prov'&&tool!=='city'&&curTab==='editor'&&edMain==='found')switchTab('');
+  if(tool&&tool!=='capital'&&tool!=='prov'&&tool!=='city'&&tool!=='exped'&&curTab==='editor'&&edMain==='found')switchTab('');
 }
 $('#btnFound').onclick=()=>setTool('found');$('#btnFaith').onclick=()=>setTool('faith');$('#btnEthnic').onclick=()=>setTool('ethnic');
 function clickAt(mx,my){
@@ -4112,6 +4291,11 @@ function clickAt(mx,my){
       if(!cc)msg='Select a living country first.';
       else{const r=tool==='prov'?provSplitAt(cc,i):cityFoundAt(cc,i);if(/^(Click|Could|Cities|There|That)/.test(r))msg=r;else{toast(r);ovDirty=true;ceVer++}}
     }
+    else if(tool==='exped'){
+      const cc=sel&&countries[sel-1]&&countries[sel-1].alive?countries[sel-1]:null;
+      if(!cc)msg='Select a living country first.';
+      else{const r=expLaunchAt(cc,i);if(r)msg=r;else{toast('Expedition launched.');ovDirty=true;ceVer++}}
+    }
     else if(tool==='found')msg=foundNationAt(i);
     else if(tool==='ethnic'){
       const o=owner[i];
@@ -4124,7 +4308,7 @@ function clickAt(mx,my){
     if(!msg){
       setTool(t);flush(false);
       const o=owner[i];if(o)selectCountry(o,'country');
-      {const done=t==='found'?'A new nation has been proclaimed.':t==='ethnic'?'A new people has emerged.':t==='capital'?'The capital has moved.':t==='prov'?'Province created.':t==='city'?'City founded.':'A new faith has been founded.';$('#hover').textContent=done;toast(done)}
+      {const done=t==='found'?'A new nation has been proclaimed.':t==='ethnic'?'A new people has emerged.':t==='capital'?'The capital has moved.':t==='prov'?'Province created.':t==='city'?'City founded.':t==='exped'?'Expedition launched.':'A new faith has been founded.';$('#hover').textContent=done;toast(done)}
     }else{$('#hover').textContent=msg;toast(msg)}
     return;
   }
@@ -4173,23 +4357,21 @@ $('#mode').onchange=e=>{
 };
 
 /* ================= speed + loop ================= */
-function setSpeed(i){
-  speedIdx=i;running=i>0;
-  document.querySelectorAll('#speed button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.s===i)));
-}
+function setSpeed(i){speedIdx=i;setTimeDays(SPEEDS[i])}
+$('#tscale').addEventListener('change',e=>{const d=+e.target.value;if(d>0){speedIdx=SPEEDS.indexOf(d);setTimeDays(d)}else setSpeed(0)});
 $('#speed').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setSpeed(+b.dataset.s)});
 document.addEventListener('keydown',e=>{
-  if(e.code==='Space'&&!/INPUT|SELECT|TEXTAREA|BUTTON/.test(document.activeElement.tagName)&&ready&&$('#setup').hidden){e.preventDefault();setSpeed(running?0:(window.lastSpeed||2))}
-  if(running)window.lastSpeed=speedIdx;
+  if(e.code==='Space'&&!/INPUT|SELECT|TEXTAREA|BUTTON/.test(document.activeElement.tagName)&&ready&&$('#setup').hidden){e.preventDefault();setTimeDays(running?0:(window.lastDays||61))}
 });
 let uiT=0,tabT=0;
 let ovT=0;
 function frame(ts){
   const dt=Math.min(.25,(ts-lastTs)/1000||0);lastTs=ts;
   if(ready&&running){
-    acc+=dt*SPEEDS[speedIdx];let n=Math.floor(acc);acc-=n;
-    const t0=performance.now();
-    while(n-->0){tick();if(performance.now()-t0>13){acc=0;break}}
+    acc+=dt*timeDays/30.4375;let n=Math.floor(acc);acc-=n;
+    const t0=performance.now();tickCap=false;
+    while(n-->0){tick();if(performance.now()-t0>13){acc=0;tickCap=true;break}}
+    dayFrac=acc;
     if(wars.length)ovDirty=true;
   }
   if(ready&&CQ.length){stepConquests();ovDirty=true}
@@ -4203,12 +4385,12 @@ function frame(ts){
   requestAnimationFrame(frame);
 }
 function updateHeader(){
-  $('#clock').textContent=`Year ${yr(tickN)} · month ${tickN%12+1}`;
+  {const mi=tickN%12,d=1+Math.min(MLEN[mi]-1,Math.floor(dayFrac*MLEN[mi]));$('#clock').textContent=`Y${yr(tickN)} · ${d} ${MNAME[mi]}`+(tickCap&&running?' · at device limit':'')}
   {const ev=events.length?events[0]:null,tk=$('#ticker'),h=ev?`<time>${yl(ev.t)}</time>${esc(ev.text)}`:'The chronicle is empty.';if(tk._h!==h){tk.innerHTML=h;tk._h=h}}
   let a=0,p=0;for(const c of living){if(c.alive){a++;p+=c.pop}}
   $('#kAlive').textContent=a;$('#kDead').textContent=countries.length-a;
   $('#kWars').textContent=wars.filter(w=>!w.master).length;$('#kPop').textContent=fmt(p);
-  document.querySelectorAll('#speed button').forEach(b=>{if(+b.dataset.s===speedIdx)b.title=SPEED_LABEL[speedIdx]});
+  document.querySelectorAll('#speed button').forEach(b=>{b.title=SPEED_LABEL[+b.dataset.s]});
 }
 
 /* ================= tabs ================= */
@@ -4217,7 +4399,7 @@ const PANES=['country','nations','chron','time','stats','lineage','show','grave'
 const PSIZE={show:'s',country:'m',editor:'m',nations:'l',chron:'l',time:'l',stats:'l',lineage:'l',grave:'l'};
 const PTITLE={country:'Country overview',editor:'Editor',nations:'Nations',chron:'Chronicle',time:'Timeline',stats:'Statistics',lineage:'Lineage',show:'Show',grave:'Graveyard'};
 let dock='';
-const panelClass=()=>'panel '+PSIZE[curTab]+(dock?' d'+dock:'');
+const panelClass=()=>'panel '+PSIZE[curTab]+(curTab==='editor'?' ted':'')+(dock?' d'+dock:'');
 function setDock(d){dock=d;$('#selChip').parentElement.dataset.dock=d;if(curTab)$('#panel').className=panelClass();$('#pDockL').setAttribute('aria-pressed',String(d==='l'));$('#pDockR').setAttribute('aria-pressed',String(d==='r'));$('#pDockF').hidden=!d}
 function switchTab(t){
   curTab=t||'';brushScr=null;
@@ -4576,7 +4758,7 @@ let scSel='eu1914';
       initView();sel=0;lastEvId=-1;lastGrave='';ready=true;
       $('#setup').hidden=true;btn.disabled=false;btn.textContent='Start scenario';
       $('#hover').textContent=`${sc.title}: ${living.length} states placed. Double-click one to open its overview.`;
-      window.lastSpeed=2;setSpeed(2);switchTab('');updateHeader();
+      window.lastDays=61;setSpeed(1);switchTab('');updateHeader();
     },30);
   });
 })();
@@ -4584,9 +4766,9 @@ $('#recBtn').onclick=()=>{$('#sMap').value='europe';$('#sW').value=500;$('#sN').
 const randSeed=()=>Math.random().toString(36).slice(2,8);
 $('#sSeed').value=randSeed();$('#reseed').onclick=()=>{$('#sSeed').value=randSeed()};
 const keepBtn=document.createElement('button');keepBtn.type='button';keepBtn.className='btn';keepBtn.textContent='Back to current world';keepBtn.hidden=true;
-keepBtn.onclick=()=>{$('#setup').hidden=true;setSpeed(window.lastSpeed||2)};
+keepBtn.onclick=()=>{$('#setup').hidden=true;setTimeDays(window.lastDays||61)};
 $('#sWarn').before(keepBtn);
-$('#btnNew').onclick=()=>{window.lastSpeed=speedIdx||window.lastSpeed||2;setSpeed(0);keepBtn.hidden=!ready;$('#setup').hidden=false};
+$('#btnNew').onclick=()=>{window.lastDays=timeDays||window.lastDays||61;setSpeed(0);keepBtn.hidden=!ready;$('#setup').hidden=false};
 $('#setupForm').addEventListener('submit',e=>{
   e.preventDefault();
   const mapId=$('#sMap').value,ms=mapSize();
@@ -4600,7 +4782,7 @@ $('#setupForm').addEventListener('submit',e=>{
     initView();sel=0;lastEvId=-1;lastGrave='';ready=true;
     $('#setup').hidden=true;btn.disabled=false;btn.textContent='Generate world';
     $('#hover').textContent=`${countries.length} nations placed on ${fmt(landPixels)} land pixels. Each one begins as a single pixel (look for the pulsing rings).`;
-    window.lastSpeed=2;setSpeed(2);switchTab('');updateHeader();
+    window.lastDays=61;setSpeed(1);switchTab('');updateHeader();
   },30);
 });
 syncSetup();
@@ -4929,6 +5111,7 @@ function editBody(c){
     ${rng('gdpMul','Economy strength (%)',Math.round((c.gdpMul||1)*100),300)}${rng('armyMul','Military posture (%)',Math.round((c.armyMul||1)*100),300)}${rng('weary','War weariness',Math.round(c.weary||0))}${rng('morale','Army morale',Math.round(c.morale))}
     ${rng('fleet','Fleet condition (%)',Math.round(fleetHP(c)*100),100)}
     <div class="btns"><button class="btn" type="button" data-do="cmdnew">Appoint a general</button><button class="btn" type="button" data-do="admnew">Appoint an admiral</button><button class="btn" type="button" data-do="cmdfire">Dismiss weakest commander</button></div>
+    <div class="btns"><button class="btn" type="button" data-do="exped">Launch expedition (click map)</button></div>
     <div class="btns"><button class="btn" type="button" data-do="mobilise">Mobilise +50%</button><button class="btn" type="button" data-do="demobilise">Disband half</button><button class="btn" type="button" data-do="grant">Grant 5 years of income</button><button class="btn" type="button" data-do="cleardebt">Clear debt</button></div>
     <h4 class="sh2">Home guard and units</h4>
     <div class="frow"><label for="ce_homeAuto">Home guard</label><label class="chk"><input type="checkbox" id="ce_homeAuto" data-ed="homeAuto"${c.homeLock?'':' checked'}> Chosen by the country</label></div>
@@ -5095,6 +5278,7 @@ function doAction(c,act,btn){
     case 'pfree':return provFree(c,+btn.dataset.p);
     case 'preset':return provReset(c);
     case 'pcreate':setTool('prov');return '';
+    case 'exped':setTool('exped');return '';
     case 'ccreate':setTool('city');return '';
     case 'clocate':{const ct=CITIES[+btn.dataset.ci];if(ct&&!ct.dead)centerOnPx(ct.i,8);return ''}
     case 'ccap':{const ct=CITIES[+btn.dataset.ci];return ct?cityMakeCapital(c,ct):''}
@@ -5282,6 +5466,16 @@ function drawArmies(X,Y,s,w,h){
       if(s<1.6&&c.id!==sel)continue;
       const q=Math.max(4,sz*.7);octx.strokeStyle='rgba(255,90,70,.85)';octx.setLineDash([3,3]);octx.lineWidth=1.6;octx.beginPath();octx.arc(x,y,q*2,0,6.283);octx.stroke();octx.setLineDash([]);ship(x,y-q*2.6,rgbCss(by.rgb),q*.9);if(++k>=3)break}
   }
+  for(const e of EXPS){
+    const c=countries[e.c-1];if(!c)continue;
+    const u=clamp((tickN+fr-e.t0)/Math.max(1,e.arrive-e.t0),0,1),p=at(e.pts,u);
+    if(p[0]<-40||p[1]<-40||p[0]>w+40||p[1]>h+40)continue;
+    const col=rgbCss(c.rgb),q=Math.max(4,sz*.85);
+    octx.beginPath();octx.moveTo(X(e.pts[0]),Y(e.pts[0]));for(let k=1;k<e.pts.length;k++)octx.lineTo(X(e.pts[k]),Y(e.pts[k]));
+    octx.setLineDash([2,5]);octx.lineWidth=1.4;octx.strokeStyle=e.kind==='colony'?'rgba(120,230,160,.55)':'rgba(255,120,90,.6)';octx.stroke();octx.setLineDash([]);
+    ship(p[0],p[1],col,q);
+    if(s>=1.6){octx.font='600 10px Arial,sans-serif';octx.textAlign='center';octx.textBaseline='top';octx.lineWidth=3;octx.strokeStyle='rgba(8,14,18,.85)';octx.fillStyle='#fff';const tx=(e.kind==='colony'?'settlers ':'')+fmt(e.size);octx.strokeText(tx,p[0],p[1]+q*.8);octx.fillText(tx,p[0],p[1]+q*.8)}
+  }
   // home guards stay at the capital while the country is at war
   for(const c of living){
     if(!c.wars.size||c.capital<0)continue;
@@ -5371,7 +5565,7 @@ function buildSave(){
   return JSON.stringify({v:7,wf:worldFirst,world:{w:W,h:H,seed:worldInfo.seed,landPct:worldInfo.landPct,scale:worldInfo.scale,map:worldInfo.map||'',rivers:useRivers},
     tickN,yearBase,CHAOS,REF,nInitial,evSeq,colorIdx,MIXN,warSeq,climate,plague,counters:Object.assign({},counters),
     chron:chron.slice(0,300),events:events.slice(0,300),series,wars:ws,unions,truce:[...truce],LH,ETH,RELIG,ETH_USED:[...ETH_USED],REL_USED:[...REL_USED],MIXES:[...MIXES],usedNames:[...usedNames],
-    PR:PR.map(P=>P&&{id:P.id,c:P.c,n:P.n,seed:P.seed,born:P.born,dead:P.dead||0}),CITIES:CITIES.filter(x=>!x.dead),pvr:rle(pv),countries:cs,own:rle(owner),eth:rle(eth),rg:rle(rg)},jrep);
+    PR:PR.map(P=>P&&{id:P.id,c:P.c,n:P.n,seed:P.seed,born:P.born,dead:P.dead||0}),CITIES:CITIES.filter(x=>!x.dead),EXPS,pvr:rle(pv),countries:cs,own:rle(owner),eth:rle(eth),rg:rle(rg)},jrep);
 }
 async function pack(str){
   try{if(typeof CompressionStream!=='undefined'){const cs=new CompressionStream('gzip'),w=cs.writable.getWriter();w.write(new TextEncoder().encode(str));w.close();
@@ -5409,14 +5603,14 @@ function loadSave(str){
   for(const c of countries){if(!(c.techs instanceof Set)){Object.assign(c,{rs:'',rp:0,rn:0,rd:.06,edSp:.06,edu:NaN,mood:58,morale:55,capacity:0,budLock:false});initTechs(c,c.tech||.3)}c.peakArea=c._keep.pa;c.lastAttacker=c._keep.la;delete c._keep}
   tickN=d.tickN;yearBase=d.yearBase||1;CHAOS=d.CHAOS;REF=d.REF;nInitial=d.nInitial;evSeq=d.evSeq;colorIdx=d.colorIdx;MIXN=d.MIXN;warSeq=d.warSeq;climate=d.climate;plague=d.plague;
   for(const k in counters)counters[k]=d.counters[k]||0;
-  PR=(d.PR||[null]).map(P=>P&&Object.assign({area:0,sn:0,sx:0,sy:0},P));if(d.pvr)unrle(d.pvr,pv);CITIES=(d.CITIES||[]).map((x,k)=>{x.id=k;x.dead=false;return x});CITY_AT=new Map();for(const x of CITIES)CITY_AT.set(x.i,x);
+  PR=(d.PR||[null]).map(P=>P&&Object.assign({area:0,sn:0,sx:0,sy:0},P));if(d.pvr)unrle(d.pvr,pv);CITIES=(d.CITIES||[]).map((x,k)=>{x.id=k;x.dead=false;return x});CITY_AT=new Map();for(const x of CITIES)CITY_AT.set(x.i,x);EXPS=d.EXPS||[];
   worldFirst=d.wf||{};if(!d.pvr){living=countries.filter(c=>c.alive);cityTick();provScan()}setTimeout(()=>{if(typeof tradeStep==='function'){tradeStep();ovDirty=true}},0);chron=d.chron;events=d.events;series=d.series;unions=d.unions;
   wars=d.wars;const byId=new Map(wars.map(w=>[w.wid,w]));for(const w of wars){w.master=w.master?byId.get(w.master)||null:null;if(!w.fr)w.fr=[]}
   truce.clear();for(const [k,v] of d.truce)truce.set(k,v);
   snaps=[];living=countries.filter(c=>c.alive);
   paintAll();initView();sel=0;followOn=false;syncFollowBtn();lastEvId=-1;lastGrave='';chKey='';tlKey='';tlIdx=-1;ready=true;
   $('#setup').hidden=true;$('#saves').hidden=true;
-  setSpeed(2);switchTab('');updateHeader();flush(true);
+  setSpeed(1);switchTab('');updateHeader();flush(true);
 }
 function slotInfo(n){try{const v=localStorage.getItem(SAVE_KEY+n+'.meta');return v?JSON.parse(v):null}catch(e){return null}}
 function renderSlots(){
