@@ -1599,7 +1599,7 @@ function expandNeutral(c,att){
     for(let q=0;q<n;q++){const o=owner[nb[q]];if(o===0){cnt++;if(rnd()*cnt<1)sel=nb[q]}else if(o!==c.id)other=true}
     if(cnt===0){if(!other)dropFront(f,k);continue}
     att--;
-    if(rnd()<expandChance(c,sel)){eth[sel]=c.coreEth;rg[sel]=c.coreRel;setOwner(sel,c.id);made++;c.gold-=claimCost(c,sel)}
+    if(rnd()<expandChance(c,sel)){if(!eth[sel])eth[sel]=c.coreEth;if(!rg[sel])rg[sel]=c.coreRel;setOwner(sel,c.id);made++;c.gold-=claimCost(c,sel)}
   }
   return made;
 }
@@ -2247,10 +2247,10 @@ function foundNationAt(i){
   }
   const ideology=pick(IDEO_KEYS),gov=pick(IDEO[ideology].gov.filter(g=>g!=='empire'));
   const nc=nearbyCulture(i);
-  let e=nc?nc.e:((ETH.length>1&&rnd()<.5)?1+Math.floor(rnd()*(ETH.length-1)):newEth());
-  let r=nc?nc.r:((RELIG.length>1&&rnd()<.5)?1+Math.floor(rnd()*(RELIG.length-1)):newReligion(0,'Brought by settlers'));
-  if(nc&&rnd()<.2)e=newEthFrom(e)||e;
-  if(nc&&rnd()<.12)r=newReligionFrom(r,'Brought by settlers')||r;
+  let e=eth[i]?eth[i]:nc?nc.e:((ETH.length>1&&rnd()<.5)?1+Math.floor(rnd()*(ETH.length-1)):newEth());
+  let r=rg[i]?rg[i]:nc?nc.r:((RELIG.length>1&&rnd()<.5)?1+Math.floor(rnd()*(RELIG.length-1)):newReligion(0,'Brought by settlers'));
+  if(nc&&!eth[i]&&rnd()<.2)e=newEthFrom(e)||e;
+  if(nc&&!rg[i]&&rnd()<.12)r=newReligionFrom(r,'Brought by settlers')||r;
   const c=makeCountry({gov,ideology,coreEth:e,coreRel:r,origin:'Founded by settlers on unclaimed land'});
   eth[i]=e;rg[i]=r;setOwner(i,c.id);c.capital=i;c.peakArea=1;c.peakPop=c.pop;
   log(`Settlers found the ${c.full}, led by ${c.ruler.title} ${c.ruler.name}`,'birth',[c.id]);
@@ -2283,16 +2283,19 @@ function releaseAll(c){for(let i=0;i<N;i++)if(owner[i]===c.id)setOwner(i,0)}
 function collapse(c){
   const prevFull=c.full;
   const seeds=[];
-  if(c.area>=30){
-    const k=ri(2,4);
-    for(let t=0;t<40&&seeds.length<k&&c.front.length;t++){
-      const i=c.front[(rnd()*c.front.length)|0];
-      if(owner[i]===c.id&&seeds.every(s=>d2(s,i)>16))seeds.push(i);
+  if(c.area>=12){
+    const k=c.area>=30?ri(2,4):2;
+    for(let t=0;t<80&&seeds.length<k;t++){
+      const i=(t<40&&c.front.length)?c.front[(rnd()*c.front.length)|0]:randOwned(c);
+      if(i>=0&&owner[i]===c.id&&seeds.every(s=>d2(s,i)>(t<40?16:4)))seeds.push(i);
     }
   }
   if(seeds.length<2){
-    releaseAll(c);
-    die(c,'Collapsed into anarchy and was abandoned',0,[]);
+    // a collapsing state never just vanishes with its people: a neighbour absorbs it, or it stays on as it is
+    let best=null,bn=-1;
+    for(const id of c.neighbors){const o=countries[id-1];if(o&&o.alive&&o.area>bn){bn=o.area;best=o}}
+    if(best){annexInto(c,best,`Collapsed and was absorbed by the ${best.full}`);return}
+    c.stab=Math.max(c.stab,40);c.rebels=Math.min(c.rebels,40);coup(c);
     return;
   }
   if(!labTmp||labTmp.length!==N)labTmp=new Uint8Array(N);else labTmp.fill(0);
@@ -2310,7 +2313,22 @@ function collapse(c){
     if(x>0)tryN(i-1);if(x<W-1)tryN(i+1);if(i>=W)tryN(i-W);if(i<N-W)tryN(i+W);
   }
   for(const i of q)setOwner(i,succ[labTmp[i]-1].id);
-  releaseAll(c);
+  // cut-off pieces (exclaves, islands) go to the nearest successor with their people, never abandoned
+  if(c.area>0){
+    const mk=++bfsStamp;
+    for(let s=0;s<N&&c.area>0;s++){
+      if(owner[s]!==c.id||bfsMark[s]===mk)continue;
+      const comp=[s];bfsMark[s]=mk;let sx=0,sy=0;
+      for(let h=0;h<comp.length;h++){
+        const i=comp[h],x=i%W;sx+=x;sy+=(i/W)|0;
+        const tn=j=>{if(owner[j]===c.id&&bfsMark[j]!==mk){bfsMark[j]=mk;comp.push(j)}};
+        if(x>0)tn(i-1);if(x<W-1)tn(i+1);if(i>=W)tn(i-W);if(i<N-W)tn(i+W);
+      }
+      const cx=sx/comp.length,cy=sy/comp.length;let bi=0,bd=1e18;
+      seeds.forEach((sd,k)=>{const d=(sd%W-cx)**2+((sd/W|0)-cy)**2;if(d<bd){bd=d;bi=k}});
+      for(const i of comp)setOwner(i,succ[bi].id);
+    }
+  }
   c.lastAttacker=prevAtt;
   succ.forEach((r,idx)=>{
     const share=r.area/total;
@@ -3439,8 +3457,8 @@ function persecStep(c){
   }
 }
 /* ---- lineage bookkeeping ---- */
-function ethTotals(){const t=new Int32Array(ETH.length+2);for(const c of living)for(let e=1;e<ETH.length;e++)t[e]+=c.ethC[e];return t}
-function relTotals(){const t=new Int32Array(RELIG.length+2);for(const c of living)for(let f=1;f<RELIG.length;f++)t[f]+=c.relC[f];return t}
+function ethTotals(){const t=new Int32Array(ETH.length+2);for(const c of living)for(let e=1;e<ETH.length;e++)t[e]+=c.ethC[e];for(let i=0;i<N;i++)if(!owner[i]&&terr[i]>=2&&eth[i])t[eth[i]]++;return t}
+function relTotals(){const t=new Int32Array(RELIG.length+2);for(const c of living)for(let f=1;f<RELIG.length;f++)t[f]+=c.relC[f];for(let i=0;i<N;i++)if(!owner[i]&&terr[i]>=2&&rg[i])t[rg[i]]++;return t}
 function lineageYear(){
   const ET=ethTotals(),RT=relTotals();
   for(let e=1;e<ETH.length;e++){
