@@ -371,11 +371,7 @@ body{padding:0;overflow:hidden}
       <button class="btn" type="button" id="btnNew">New world</button>
       <div class="seg" id="speed" role="group" aria-label="Simulation speed">
         <button type="button" data-s="0" aria-pressed="false">Pause</button>
-        <button type="button" data-s="1" aria-pressed="false">1x</button>
-        <button type="button" data-s="2" aria-pressed="true">2x</button>
-        <button type="button" data-s="3" aria-pressed="false">3x</button>
-        <button type="button" data-s="4" aria-pressed="false">4x</button>
-        <button type="button" data-s="5" aria-pressed="false">Max</button>
+        <button type="button" data-s="play" aria-pressed="true">Play</button>
       </div>
       <label class="tsl" title="How much game time passes per real second"><select id="tscale" aria-label="Game time per real second"><option value="0">paused</option><option value="1">1 day</option><option value="3">3 days</option><option value="7">1 week</option><option value="14">2 weeks</option><option value="30">1 month</option><option value="61">2 months</option><option value="91">3 months</option><option value="182">6 months</option><option value="365">1 year</option><option value="730">2 years</option><option value="1825">5 years</option><option value="3650">10 years</option></select><span class="muted">/ s</span></label>
     </div>
@@ -465,7 +461,7 @@ body{padding:0;overflow:hidden}
         <p class="muted" id="rivNote" hidden>This world was generated without rivers.</p>
       </div>
       <div class="pane ed" id="pane-editor" hidden>
-        <nav class="snav" id="edMain" aria-label="Editor mode"><button type="button" data-em="country" aria-current="true">Country</button><button type="button" data-em="paint" aria-current="false">Paint</button><button type="button" data-em="found" aria-current="false">Found</button></nav>
+        <nav class="snav" id="edMain" aria-label="Editor area"><button type="button" data-em="countries" aria-current="true">Countries</button><button type="button" data-em="religions" aria-current="false">Religions</button><button type="button" data-em="ethnicities" aria-current="false">Ethnicities</button><button type="button" data-em="provinces" aria-current="false">Provinces</button><button type="button" data-em="ores" aria-current="false">Ores</button><button type="button" data-em="armies" aria-current="false">Armies</button><button type="button" data-em="cities" aria-current="false">Cities and trade</button></nav>
         <nav class="snav" id="edSub" aria-label="Editor section"><div id="edSecNav"></div><div id="edFoundNav" hidden><button type="button" data-fs="found" aria-current="true">Nation</button><button type="button" data-fs="ethnic" aria-current="false">Ethnicity</button><button type="button" data-fs="faith" aria-current="false">Religion</button></div><div id="edLayer" hidden><button type="button" data-l="territory" aria-pressed="true">Territory</button><button type="button" data-l="ethnicity" aria-pressed="false">Ethnicity</button><button type="button" data-l="religion" aria-pressed="false">Religion</button></div></nav>
         <div class="smain">
           <div id="edCountryView"><div id="cHead2"></div><div id="cEdit"></div></div>
@@ -492,6 +488,11 @@ body{padding:0;overflow:hidden}
           <h3>Selected country</h3>
           <div class="row"><button class="btn" type="button" id="edEthSet">Set as state people</button><button class="btn" type="button" id="edEthAdd">Add as state people</button><button class="btn" type="button" id="edEthDrop">Remove as state people</button></div>
           <p class="muted">Ethnicity is painted on owned land only. State-people buttons act on the country selected on the map.</p>
+        </div>
+        <div class="edgrid" id="edOre" hidden>
+          <h3>Ores</h3>
+          <label class="edlab" for="edOreSel">Paint deposit</label><select class="edsel" id="edOreSel"><option value="0">No ore (erase)</option><option value="1">Iron</option><option value="2">Copper</option><option value="3">Tin</option><option value="4">Gold</option><option value="5">Silver</option><option value="6">Coal</option></select>
+          <p class="muted">Deposits drive trade and income. The map switches to the ore view while you paint. Land of any owner can be painted.</p>
         </div>
         <div class="edgrid" id="edReligion" hidden>
           <h3>Religion</h3>
@@ -4100,7 +4101,7 @@ const MLEN=[31,28,31,30,31,30,31,31,30,31,30,31],MNAME=['Jan','Feb','Mar','Apr',
 function setTimeDays(d){
   timeDays=d;running=d>0;if(d>0)window.lastDays=d;
   const s=$('#tscale');if(s){const o=s.options&&[...s.options].find(x=>+x.value===d);s.value=o?o.value:'';}
-  document.querySelectorAll('#speed button').forEach(b=>b.setAttribute('aria-pressed',String(SPEEDS[+b.dataset.s]===d)));
+  document.querySelectorAll('#speed button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.s==='0'?d===0:d>0)));
 }
 
 function fitView(){
@@ -4359,7 +4360,7 @@ $('#mode').onchange=e=>{
 /* ================= speed + loop ================= */
 function setSpeed(i){speedIdx=i;setTimeDays(SPEEDS[i])}
 $('#tscale').addEventListener('change',e=>{const d=+e.target.value;if(d>0){speedIdx=SPEEDS.indexOf(d);setTimeDays(d)}else setSpeed(0)});
-$('#speed').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setSpeed(+b.dataset.s)});
+$('#speed').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.s==='play'){const d=window.lastDays||61;speedIdx=SPEEDS.indexOf(d);setTimeDays(d)}else setSpeed(0)});
 document.addEventListener('keydown',e=>{
   if(e.code==='Space'&&!/INPUT|SELECT|TEXTAREA|BUTTON/.test(document.activeElement.tagName)&&ready&&$('#setup').hidden){e.preventDefault();setTimeDays(running?0:(window.lastDays||61))}
 });
@@ -4390,7 +4391,7 @@ function updateHeader(){
   let a=0,p=0;for(const c of living){if(c.alive){a++;p+=c.pop}}
   $('#kAlive').textContent=a;$('#kDead').textContent=countries.length-a;
   $('#kWars').textContent=wars.filter(w=>!w.master).length;$('#kPop').textContent=fmt(p);
-  document.querySelectorAll('#speed button').forEach(b=>{b.title=SPEED_LABEL[+b.dataset.s]});
+  
 }
 
 /* ================= tabs ================= */
@@ -4398,7 +4399,7 @@ let curTab='',evFilter='major',nsort={k:'area',dir:-1},lastEvId=-1,lastGrave='';
 const PANES=['country','nations','chron','time','stats','lineage','show','grave','editor'];
 const PSIZE={show:'s',country:'m',editor:'m',nations:'l',chron:'l',time:'l',stats:'l',lineage:'l',grave:'l'};
 const PTITLE={country:'Country overview',editor:'Editor',nations:'Nations',chron:'Chronicle',time:'Timeline',stats:'Statistics',lineage:'Lineage',show:'Show',grave:'Graveyard'};
-let dock='';
+let dock='',edInit=0;
 const panelClass=()=>'panel '+PSIZE[curTab]+(curTab==='editor'?' ted':'')+(dock?' d'+dock:'');
 function setDock(d){dock=d;$('#selChip').parentElement.dataset.dock=d;if(curTab)$('#panel').className=panelClass();$('#pDockL').setAttribute('aria-pressed',String(d==='l'));$('#pDockR').setAttribute('aria-pressed',String(d==='r'));$('#pDockF').hidden=!d}
 function switchTab(t){
@@ -4409,7 +4410,7 @@ function switchTab(t){
     for(const k of PANES)$('#pane-'+k).hidden=k!==curTab;
     $('#panel').className=panelClass();$('#pTitle').textContent=PTITLE[curTab];
   }
-  if(curTab==='editor'){if(tool)setTool(tool);setEdMain(edMain)}
+  if(curTab==='editor'){if(tool)setTool(tool);if(!edInit){edInit=1;setEdMode(edMode)}else setEdMain(edMain)}
   ovDirty=true;lastEvId=-1;lastGrave='';chKey='';updateTab(true);
 }
 document.addEventListener('click',e=>{
@@ -4804,6 +4805,11 @@ function setRelPx(c,i,r){
 function editEth(i,e){if(eth[i]===e)return;const o=owner[i];if(o)setEth(countries[o-1],i,e);else eth[i]=e}
 function editRel(i,r){if(rg[i]===r)return;const o=owner[i];if(o)setRelPx(countries[o-1],i,r);else rg[i]=r}
 
+function editOre(i,q){
+  const old=ore[i];if(old===q)return;
+  const o=owner[i];if(o){const c=countries[o-1];c.oreC[old]--;c.oreC[q]++}
+  ore[i]=q;if(mode==='ores')paintPixel(i);
+}
 function beginStroke(){stroke={seen:new Set(),recs:[]}}
 function endStroke(){
   if(stroke&&stroke.recs.length){
@@ -4812,7 +4818,7 @@ function endStroke(){
   }
   stroke=null;
 }
-function remember(i){stroke.seen.add(i);stroke.recs.push([i,owner[i],eth[i],rg[i]])}
+function remember(i){stroke.seen.add(i);stroke.recs.push([i,owner[i],eth[i],rg[i],ore[i]])}
 function applyEdit(i){
   if(stroke.seen.has(i)||terr[i]<2)return;
   if(edLayer==='territory'){
@@ -4825,6 +4831,10 @@ function applyEdit(i){
     const e=+$('#edEth').value;
     if(!owner[i]||!e||eth[i]===e)return;
     remember(i);editEth(i,e);
+  }else if(edLayer==='ore'){
+    const q=+$('#edOreSel').value;
+    if(ore[i]===q)return;
+    remember(i);editOre(i,q);
   }else{
     const r=+$('#edRel').value;
     if(!owner[i]||!r||rg[i]===r)return;
@@ -4854,9 +4864,9 @@ function undoStroke(){
   const recs=undoStack.pop();
   if(!recs){edMsg('Nothing to undo.');return}
   for(let k=recs.length-1;k>=0;k--){
-    const[i,o,e,r]=recs[k];
+    const[i,o,e,r,q]=recs[k];
     if(owner[i]!==o&&(!o||countries[o-1].alive))setOwner(i,o);
-    editEth(i,e);editRel(i,r);
+    editEth(i,e);editRel(i,r);if(q!==undefined)editOre(i,q);
   }
   edMsg(`Undid ${recs.length} pixels.`);
 }
@@ -4899,10 +4909,9 @@ function refreshEditor(force){
 }
 function setEdMain(m){
   edMain=m;
-  document.querySelectorAll('#edMain button').forEach(b=>b.setAttribute('aria-current',String(b.dataset.em===m)));
   $('#edCountryView').hidden=m!=='country';$('#edPaintView').hidden=m!=='paint';
-  $('#edFoundView').hidden=m!=='found';$('#edFoundNav').hidden=m!=='found';
-  $('#edSecNav').hidden=m!=='country';$('#edLayer').hidden=m!=='paint';
+  $('#edFoundView').hidden=m!=='found';$('#edFoundNav').hidden=true;
+  $('#edSecNav').hidden=false;$('#edLayer').hidden=true;
   brushScr=null;ovDirty=true;
   if(m==='paint'){
     setLayer(edLayer);refreshEditor(true);
@@ -4910,18 +4919,46 @@ function setEdMain(m){
   }else if(m==='country')renderEditorCountry();
   else setFoundSec(foundSec);
 }
+/* editor areas: each lists its sections; 'x_' sections are map tools, 'e_' sections edit the selected country */
+const EDM={
+  countries:['Countries',[['e_id','Overview: identity'],['e_gov','Government and purpose'],['e_num','Realm numbers'],['e_know','Knowledge and society'],['e_dip','Diplomacy'],['x_found','Create new nation'],['x_brush','Brush territory'],['e_land','Territory shortcuts'],['e_danger','Drastic actions']]],
+  religions:['Religions',[['x_brel','Brush faith'],['x_frel','Found a religion'],['e_rel','Faith of the country']]],
+  ethnicities:['Ethnicities',[['x_beth','Brush people'],['x_feth','Found an ethnicity'],['e_eth','People of the country']]],
+  provinces:['Provinces',[['e_prov','Provinces and status']]],
+  ores:['Ores',[['x_bore','Brush ores'],['e_ore','Ores of the country']]],
+  armies:['Armies',[['e_mil','Army, navy and economy']]],
+  cities:['Cities and trade',[['e_city','Cities'],['e_trade','Trade and embargoes']]]
+};
+const XSEC={x_found:['found','found'],x_feth:['found','ethnic'],x_frel:['found','faith'],x_brush:['paint','territory'],x_beth:['paint','ethnicity'],x_brel:['paint','religion'],x_bore:['paint','ore']};
+let edMode='countries';const edSubs={};
+function setEdMode(m,sub){
+  if(!EDM[m])m='countries';edMode=m;
+  document.querySelectorAll('#edMain button').forEach(b=>b.setAttribute('aria-current',String(b.dataset.em===m)));
+  $('#edSecNav').innerHTML=EDM[m][1].map(([k,t])=>`<button type="button" data-esec="${k}" aria-current="false">${t}</button>`).join('');
+  setEdSub(sub||edSubs[m]||EDM[m][1][0][0]);
+}
+function setEdSub(k){
+  const list=EDM[edMode][1];if(!list.some(x=>x[0]===k))k=list[0][0];
+  edSubs[edMode]=k;
+  document.querySelectorAll('#edSecNav button').forEach(b=>b.setAttribute('aria-current',String(b.dataset.esec===k)));
+  const x=XSEC[k];
+  if(x){
+    if(x[0]==='found'){foundSec=x[1];setEdMain('found')}
+    else{edLayer=x[1];setEdMain('paint')}
+  }else{edSec=k;ceKey='';setEdMain('country')}
+  const m=$('#edPaintView').parentElement;if(m)m.scrollTop=0;
+}
 let foundSec='found';
 function setFoundSec(k){
   foundSec=k;
   document.querySelectorAll('#edFoundNav button').forEach(b=>b.setAttribute('aria-current',String(b.dataset.fs===k)));
   document.querySelectorAll('#edFoundView [data-fp]').forEach(d=>d.hidden=d.dataset.fp!==k);
 }
-$('#edFoundNav').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setFoundSec(b.dataset.fs)});
 function setLayer(l){
   edLayer=l;
   document.querySelectorAll('#edLayer button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.l===l)));
-  $('#edTerritory').hidden=l!=='territory';$('#edEthnicity').hidden=l!=='ethnicity';$('#edReligion').hidden=l!=='religion';
-  const m=l==='territory'?'political':l;
+  $('#edTerritory').hidden=l!=='territory';$('#edEthnicity').hidden=l!=='ethnicity';$('#edReligion').hidden=l!=='religion';$('#edOre').hidden=l!=='ore';
+  const m=l==='territory'?'political':l==='ore'?'ores':l;
   if(mode!==m){$('#mode').value=m;$('#mode').onchange({target:{value:m}})}
 }
 
@@ -5091,21 +5128,24 @@ function editBody(c){
     <div class="frow"><label for="ce_gtarget">Target</label><select id="ce_gtarget" data-ed="gtarget"><option value="0">Any</option>${opt(others.map(x=>[x.id,x.full]),tgt)}</select></div>
     <label class="chk"><input type="checkbox" id="ce_glock" data-ed="glock"${glock?' checked':''}> Keep this purpose (the country will not pick its own)</label>
   </div>`);
-  h+=sect('e_people','People and faith',`<div class="ef">
+  h+=sect('e_rel','Faith of the country',`<div class="ef">
     <div class="frow"><label for="ce_rel">State religion</label><select id="ce_rel" data-ed="rel">${opt(relL.map(x=>[x[0],x[1]]),c.coreRel)}</select></div>
-    <div class="btns"><button class="btn" type="button" data-do="convrel">Convert all its land to this religion</button></div>
+    <div class="btns"><button class="btn" type="button" data-do="convrel">Convert all its land to this religion</button><button class="btn" type="button" data-do="paintrel">Brush faith for it</button></div>
+  </div>`);
+  h+=sect('e_eth','People of the country',`<div class="ef">
     <div class="sub" style="margin-top:4px">State peoples</div>
     <div class="chips">${stateChips}</div>
     <div class="frow"><label for="ceEthAdd">Add people</label><div class="btns"><select id="ceEthAdd" style="flex:1 1 120px">${opt(ethL.map(x=>[x[0],x[1]]),'')}</select><button class="btn" type="button" data-do="ethadd">Add</button></div></div>
-    <div class="btns"><button class="btn" type="button" data-do="conveth">Convert all its land to the main people</button></div>
+    <div class="btns"><button class="btn" type="button" data-do="conveth">Convert all its land to the main people</button><button class="btn" type="button" data-do="painteth">Brush people for it</button></div>
     <p class="note">The first people listed as main is the one minorities are absorbed into.</p>
   </div>`);
+  h+=sect('e_ore','Ores of the country',`<div class="ef"><dl class="kv">${ORE.slice(1).map((o,k)=>`<dt>${o.n}</dt><dd>${c.oreC[k+1]||0} px</dd>`).join('')}</dl><p class="note">Use Brush ores to add or remove deposits inside or outside its borders.</p></div>`);
   h+=sect('e_num','Realm numbers',`<div class="ef">
     ${rng('stab','Stability',Math.round(c.stab))}${rng('legit','Legitimacy',Math.round(c.legit))}${rng('rebels','Unrest',Math.round(c.rebels))}${rng('corr','Corruption',Math.round(c.corr/.75*100))}
     ${num('pop','Population',Math.round(c.pop),50)}
     <p class="note">The simulation keeps moving these numbers after you set them.</p>
   </div>`);
-  h+=sect('e_mil','Economy and army',`<div class="ef">
+  h+=sect('e_mil','Army, navy and economy',`<div class="ef">
     <dl class="kv"><dt>GDP</dt><dd>${fmt(c.gdp)}</dd><dt>Income</dt><dd>${fmt(c.income)}</dd><dt>Expenses</dt><dd>${fmt(c.expense)}</dd><dt>Army power</dt><dd>${fmt(c.power)}</dd></dl>
     ${num('gold','Treasury',Math.round(c.gold),10)}${num('army','Army size',Math.round(c.army),5)}
     ${rng('gdpMul','Economy strength (%)',Math.round((c.gdpMul||1)*100),300)}${rng('armyMul','Military posture (%)',Math.round((c.armyMul||1)*100),300)}${rng('weary','War weariness',Math.round(c.weary||0))}${rng('morale','Army morale',Math.round(c.morale))}
@@ -5158,7 +5198,7 @@ function editBody(c){
     if(em.length)th+=`<p class="note">Embargoes:</p><div class="chips">${em.map(id=>countries[id-1]?`<span class="chip">${esc(countries[id-1].base)}<button type="button" class="x" data-do="embargo" data-o="${id}" title="Lift">&times;</button></span>`:'').join('')}</div>`;
     h+=sect('e_trade','Trade and embargoes',th+'</div>');
   }
-  h+=sect('e_land','Territory',`<div class="ef"><p class="note">Painting happens in the Paint tab. These shortcuts open it with this country ready.</p>
+  h+=sect('e_land','Territory',`<div class="ef"><p class="note">Shortcuts that open the brush with this country ready.</p>
     <div class="btns"><button class="btn" type="button" data-do="paintland">Paint its land</button><button class="btn" type="button" data-do="painteth">Paint its people</button><button class="btn" type="button" data-do="paintrel">Paint its faith</button></div></div>`);
   h+=sect('e_danger','Drastic actions',`<div class="ef"><p class="note">Each one asks you to click twice.</p>
     <div class="btns"><button class="btn danger" type="button" data-do="revolt" data-confirm="1">Trigger a revolt</button><button class="btn danger" type="button" data-do="civil" data-confirm="1">Civil war</button><button class="btn danger" type="button" data-do="dissolve" data-confirm="1">Dissolve</button></div></div>`);
@@ -5235,7 +5275,7 @@ $('#pane-editor').addEventListener('change',onEdField);
 
 /* buttons */
 function paintFor(layer,c){
-  edMain='paint';switchTab('editor');setLayer(layer);refreshEditor(true);
+  switchTab('editor');setEdMode(layer==='territory'?'countries':layer==='ethnicity'?'ethnicities':'religions',layer==='territory'?'x_brush':layer==='ethnicity'?'x_beth':'x_brel');refreshEditor(true);
   $('#edCountry').value=String(c.id);$('#edOn').checked=true;
   if(layer==='territory')$('#edSettle').checked=true;
   if(layer==='ethnicity'){$('#edEth').value=String(c.coreEth);fillEthFields()}
@@ -5298,12 +5338,12 @@ document.addEventListener('click',e=>{
   const sc=t.closest('[data-sec]');
   if(sc){cSec=sc.dataset.sec;renderCountry();const m=$('#cMain');if(m)m.scrollTop=0;return}
   const es=t.closest('[data-esec]');
-  if(es){edSec=es.dataset.esec;ceKey='';renderEditorCountry();const m=$('#edPaintView').parentElement;if(m)m.scrollTop=0;return}
+  if(es){setEdSub(es.dataset.esec);updateTab();return}
   const em=t.closest('[data-em]');
-  if(em){setEdMain(em.dataset.em);updateTab();return}
+  if(em){setEdMode(em.dataset.em);updateTab();return}
   const a=t.closest('[data-act]');
   if(a){
-    if(a.dataset.act==='edit'){edMain='country';switchTab('editor');return}
+    if(a.dataset.act==='edit'){switchTab('editor');setEdMode('countries','e_id');return}
     if(a.dataset.act==='follow'){$('#selFollow').click();return}
   }
   const d=t.closest('[data-do]');
@@ -5319,18 +5359,16 @@ document.addEventListener('click',e=>{
     if(msg)toast(msg);
   }
 });
-const ED_SECS=[['e_id','Identity'],['e_gov','Government and purpose'],['e_people','People and faith'],['e_num','Realm numbers'],['e_mil','Economy and army'],['e_know','Knowledge and society'],['e_prov','Provinces and status'],['e_city','Cities'],['e_trade','Trade and embargoes'],['e_dip','Diplomacy'],['e_land','Territory'],['e_danger','Drastic actions']];
 function renderEditorCountry(){
   const head=$('#cHead2'),body=$('#cEdit'),nav=$('#edSecNav');
   const c=sel&&countries[sel-1];
   if(!c||!c.alive){
-    ceKey='';setHtml(nav,'');
+    ceKey='';
     setHtml(head,c?`<div class="chead2"><span class="swatch" style="background:${rgbCss(c.rgb)}"></span><div class="ctitle"><h2 class="cname">${esc(c.full)}</h2><span class="pill dead">defunct</span></div></div>`:'');
     setHtml(body,`<p class="hint2">${c?'This country no longer exists, so there is nothing to edit.':'Click a country on the map to edit it (it is selected with a single click).'}</p>`);
     return;
   }
   setHtml(head,`<div class="chead2"><span class="swatch" style="background:${rgbCss(c.rgb)}"></span><div class="ctitle"><h2 class="cname">${esc(c.full)}</h2></div><div class="btns"><button type="button" class="btn" data-act="locate">Locate</button></div></div>`);
-  setHtml(nav,ED_SECS.map(([k,t])=>`<button type="button" data-esec="${k}" aria-current="${k===edSec}">${t}</button>`).join(''));
   const key=sel+'|'+ceVer+'|'+edSec+'|'+c.stateEth.join(',')+'|'+living.length;
   if(key!==ceKey&&!formBusy()){
     ceKey=key;SECS=[];editBody(c);
