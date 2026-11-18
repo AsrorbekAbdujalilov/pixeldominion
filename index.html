@@ -360,6 +360,17 @@ body{padding:0;overflow:hidden}
 .panel.ted .snav button{font-size:12.5px;padding:6px 8px}}
 .clock{font-size:14px}
 .panel.ted{background:rgba(14,22,28,.95)}
+
+.app{position:relative}
+.pinbtn{padding:6px 10px;line-height:1}
+.pinbtn[aria-pressed="false"]{opacity:.65;filter:grayscale(1)}
+#topTab{display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:70;padding:3px 14px 4px;font:600 12px/1.2 inherit;font-family:inherit;color:var(--text,#e8eef2);background:var(--panel);border:1px solid var(--line,rgba(255,255,255,.18));border-top:0;border-radius:0 0 10px 10px;cursor:pointer;opacity:.85}
+#topTab:hover{opacity:1}
+.app.unpin #topTab{display:block}
+.app.unpin.peek #topTab{display:none}
+.app.unpin .top{position:absolute;left:0;right:0;top:0;z-index:65;transform:translateY(-110%);transition:transform .18s ease;box-shadow:0 8px 24px rgba(0,0,0,.45);pointer-events:none}
+.app.unpin.peek .top{transform:none;pointer-events:auto}
+@media (prefers-reduced-motion:reduce){.app.unpin .top{transition:none}}
 </style>
 
 <div class="app" id="app">
@@ -369,6 +380,7 @@ body{padding:0;overflow:hidden}
       <div class="chrow"><button class="btn chbtn" type="button" id="btnChron" data-tab="chron" aria-selected="false">Chronicle</button><button class="ticker" type="button" id="ticker" data-tab="chron" title="Latest event. Click to open the Chronicle.">The chronicle is empty.</button></div>
       <button class="btn" type="button" id="btnSaves">Saves</button>
       <button class="btn" type="button" id="btnNew">New world</button>
+      <button class="btn pinbtn" type="button" id="btnPin" aria-pressed="true" title="Pinned: the top bar stays visible. Click to unpin and hide it.">&#128204;</button>
       <div class="seg" id="speed" role="group" aria-label="Simulation speed">
         <button type="button" data-s="0" aria-pressed="false">Pause</button>
         <button type="button" data-s="play" aria-pressed="true">Play</button>
@@ -404,6 +416,7 @@ body{padding:0;overflow:hidden}
     </div>
   </header>
 
+  <button type="button" id="topTab" title="Show the top bar" aria-label="Show the top bar">&#9662; Menu</button>
   <main class="mapwrap" aria-label="World map">
     <div id="viewport"><canvas id="map"></canvas><canvas id="ov"></canvas></div>
     <div id="tip" hidden></div>
@@ -2034,7 +2047,8 @@ function battle(w,A,B,F){
   let sA=A.power*(fieldShare(A,w)+(!defIsB?homeF(A)*.6:0))/nf*(.7+rnd()*.6)*(defIsB?1:ter)*(A.goal.t==='conquer'?1.08:1)*mixF(A,B,s.i,s.j,!defIsB)*cmdF(kA)*supA*seaA,sB=B.power*(fieldShare(B,w)+(defIsB?homeF(B)*.6:0))/nf*(.7+rnd()*.6)*(defIsB?ter:1)*(B.goal.t==='conquer'?1.08:1)*mixF(B,A,s.i,s.j,defIsB)*cmdF(kB)*supB*seaB;
   for(const x of A.allies)if(countries[x-1].wars.has(B.id))sA+=countries[x-1].power*.25;
   for(const x of B.allies)if(countries[x-1].wars.has(A.id))sB+=countries[x-1].power*.25;
-  const win=rnd()<sA/(sA+sB)?A:B,lose=win===A?B:A,m=Math.abs(sA-sB)/(sA+sB);
+  const pw=sA*sA/(sA*sA+sB*sB||1),win=rnd()<pw?A:B,lose=win===A?B:A,m=Math.abs(sA-sB)/(sA+sB);
+  if(window.BDBG)BDBG.push([A.army*fieldShare(A,w)/nf,B.army*fieldShare(B,w)/nf,A.power,B.power,win===A,sA,sB,defIsB]);
   cmdDuel(win,lose,w,F,win===A?kA:kB,win===A?kB:kA,m);
   const winLead=rulerLeads(win),loseLead=rulerLeads(lose);
   let fell=null;
@@ -4393,6 +4407,32 @@ function updateHeader(){
   $('#kWars').textContent=wars.filter(w=>!w.master).length;$('#kPop').textContent=fmt(p);
   
 }
+
+/* top bar: pinned (always visible) or unpinned (hidden; the Menu tab or the screen's top edge brings it back) */
+(function(){
+  const app=document.querySelector('.app'),pin=$('#btnPin'),tab=$('#topTab'),top=document.querySelector('.top');
+  if(!app||!pin||!tab||!top)return;
+  let pinned=true,hideT=0;
+  try{pinned=localStorage.getItem('pd_pin')!=='0'}catch(e){}
+  const apply=()=>{
+    const h0=vp.clientHeight,fit0=Math.min(vp.clientWidth/W,h0/H)*.98,wasFit=Math.abs(view.s/fit0-1)<.03;
+    app.classList.toggle('unpin',!pinned);if(pinned)app.classList.remove('peek');
+    pin.setAttribute('aria-pressed',String(pinned));
+    pin.title=pinned?'Pinned: the top bar stays visible. Click to unpin and hide it.':'Unpinned: click to pin the top bar back in place.';
+    try{localStorage.setItem('pd_pin',pinned?'1':'0')}catch(e){}
+    const h1=vp.clientHeight;if(h1&&h0&&h1!==h0){if(wasFit)fitView();else{view.ty+=(h1-h0)/2;applyView()}}
+    if(window.ready)resizeOv();
+  };
+  const peek=on=>{clearTimeout(hideT);if(on)app.classList.add('peek');else app.classList.remove('peek')};
+  pin.addEventListener('click',()=>{pinned=!pinned;apply();if(!pinned)peek(false)});
+  tab.addEventListener('click',()=>peek(true));
+  tab.addEventListener('mouseenter',()=>{if(matchMedia('(hover:hover)').matches)peek(true)});
+  top.addEventListener('mouseenter',()=>clearTimeout(hideT));
+  top.addEventListener('mouseleave',()=>{if(pinned)return;const f=document.activeElement;if(f&&f.tagName==='SELECT'&&top.contains(f))return;clearTimeout(hideT);hideT=setTimeout(()=>peek(false),450)});
+  document.addEventListener('pointerdown',e=>{if(!pinned&&app.classList.contains('peek')&&!top.contains(e.target)&&e.target!==tab)peek(false)},true);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pinned)peek(false)});
+  apply();
+})();
 
 /* ================= tabs ================= */
 let curTab='',evFilter='major',nsort={k:'area',dir:-1},lastEvId=-1,lastGrave='';
