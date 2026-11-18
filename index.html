@@ -355,7 +355,7 @@ body{padding:0;overflow:hidden}
 .prow{display:flex;gap:8px;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.07)}.prow .lb{flex:1;min-width:0}.lbar{width:54px;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden;flex:none}.lbar i{display:block;height:100%}
 .pedit{border-bottom:1px solid rgba(255,255,255,.07);padding:7px 0}.pedit .ph{font-size:12.5px;margin-bottom:5px}.sh2{margin:14px 0 4px;font-size:11.5px;opacity:.7;text-transform:uppercase;letter-spacing:.06em}.pname{width:150px;max-width:55%;font:inherit;padding:2px 6px}.pb{margin:0 0 5px}.ps2{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.ps2 select{flex:1;min-width:104px}.ps2 .rng{flex:1;min-width:110px}
 .lnbox{overflow:auto;max-height:58vh;border:1px solid var(--line);border-radius:8px;padding:6px;margin-top:6px}#lnChart.lnbox{max-height:none}
-@media (min-width:761px){.panel.ted{width:min(800px,calc(100% - 24px));height:min(calc(100% - 24px),640px);top:auto;bottom:12px}
+@media (min-width:761px){.panel.ted{width:min(980px,calc(100% - 24px));height:min(calc(100% - 24px),640px);top:auto;bottom:12px}
 .panel.ted .ed{grid-template-columns:104px 150px minmax(0,1fr)}
 .panel.ted .snav button{font-size:12.5px;padding:6px 8px}}
 .clock{font-size:14px}
@@ -371,6 +371,29 @@ body{padding:0;overflow:hidden}
 .app.unpin .top{position:absolute;left:0;right:0;top:0;z-index:65;transform:translateY(-110%);transition:transform .18s ease;box-shadow:0 8px 24px rgba(0,0,0,.45);pointer-events:none}
 .app.unpin.peek .top{transform:none;pointer-events:auto}
 @media (prefers-reduced-motion:reduce){.app.unpin .top{transition:none}}
+
+.tbtools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}
+.tsearch{flex:1 1 160px;min-width:120px}
+.tbtn{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.tcheck{display:flex;align-items:center;gap:5px;font-size:12.5px}
+.tbwrap{max-height:calc(100% - 20px);overflow:auto;border:1px solid var(--line,rgba(255,255,255,.14));border-radius:8px}
+#edTableView{display:flex;flex-direction:column;min-height:0}
+#edTableView .tbwrap{flex:1 1 auto;min-height:160px;max-height:min(52vh,460px)}
+.tbl{border-collapse:collapse;width:100%;font-size:12px}
+.tbl th{font-size:11px;letter-spacing:.02em}
+.tbl th{position:sticky;top:0;background:var(--panel);text-align:left;font-weight:600;padding:6px 6px;cursor:pointer;white-space:nowrap;z-index:1;border-bottom:1px solid var(--line,rgba(255,255,255,.18))}
+.tbl th.on{color:var(--accent,#7fe3d0)}
+.tbl td{padding:3px 6px;border-bottom:1px solid rgba(255,255,255,.06);white-space:nowrap}
+.tbl .r{text-align:right}
+.tbl tbody tr{cursor:pointer}.tbl tbody tr:hover{background:rgba(255,255,255,.06)}
+.tbl tr.sel{background:rgba(127,227,208,.14)}
+.tbl .tin{background:transparent;border:1px solid transparent;border-radius:5px;padding:3px 5px;color:inherit;font:inherit;max-width:150px}
+.tbl .tin.n{width:72px;text-align:right}
+.tbl .tin:hover,.tbl .tin:focus{border-color:var(--line,rgba(255,255,255,.3));background:rgba(0,0,0,.25)}
+.tbl input[type=color]{width:24px;height:22px;padding:0;border:0;background:none;cursor:pointer}
+.tbl .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.tbl .sm{padding:2px 8px;font-size:11.5px;margin-right:4px}
+.tnote{margin:8px 0 0}
 </style>
 
 <div class="app" id="app">
@@ -478,6 +501,7 @@ body{padding:0;overflow:hidden}
         <nav class="snav" id="edSub" aria-label="Editor section"><div id="edSecNav"></div><div id="edFoundNav" hidden><button type="button" data-fs="found" aria-current="true">Nation</button><button type="button" data-fs="ethnic" aria-current="false">Ethnicity</button><button type="button" data-fs="faith" aria-current="false">Religion</button></div><div id="edLayer" hidden><button type="button" data-l="territory" aria-pressed="true">Territory</button><button type="button" data-l="ethnicity" aria-pressed="false">Ethnicity</button><button type="button" data-l="religion" aria-pressed="false">Religion</button></div></nav>
         <div class="smain">
           <div id="edCountryView"><div id="cHead2"></div><div id="cEdit"></div></div>
+          <div id="edTableView" hidden></div>
           <div id="edFoundView" hidden>
             <div data-fp="found"><h3 class="sh">Found a nation</h3><p class="muted">Click unclaimed land to settle a new state, or click inside a country to carve out a breakaway state.</p><div class="row"><button class="btn" type="button" id="btnFound" aria-pressed="false" title="Click unclaimed land to found a nation there, or click a country to carve out a breakaway state">Found nation</button></div></div>
             <div data-fp="ethnic" hidden><h3 class="sh">Found an ethnicity</h3><p class="muted">Click inside a country to turn the surrounding region into a brand new people.</p><div class="row"><button class="btn" type="button" id="btnEthnic" aria-pressed="false" title="Click inside a country to give a region a brand new ethnicity">Found ethnicity</button></div></div>
@@ -4950,26 +4974,27 @@ function refreshEditor(force){
 function setEdMain(m){
   edMain=m;
   $('#edCountryView').hidden=m!=='country';$('#edPaintView').hidden=m!=='paint';
-  $('#edFoundView').hidden=m!=='found';$('#edFoundNav').hidden=true;
+  $('#edFoundView').hidden=m!=='found';$('#edFoundNav').hidden=true;$('#edTableView').hidden=m!=='table';
   $('#edSecNav').hidden=false;$('#edLayer').hidden=true;
   brushScr=null;ovDirty=true;
   if(m==='paint'){
     setLayer(edLayer);refreshEditor(true);
     $('#hover').textContent='Paint: drag to paint. Move the map with right-drag, middle-drag, Space+drag or two fingers.';
   }else if(m==='country')renderEditorCountry();
+  else if(m==='table')renderTable();
   else setFoundSec(foundSec);
 }
 /* editor areas: each lists its sections; 'x_' sections are map tools, 'e_' sections edit the selected country */
 const EDM={
-  countries:['Countries',[['e_id','Overview: identity'],['e_gov','Government and purpose'],['e_num','Realm numbers'],['e_know','Knowledge and society'],['e_dip','Diplomacy'],['x_found','Create new nation'],['x_brush','Brush territory'],['e_land','Territory shortcuts'],['e_danger','Drastic actions']]],
-  religions:['Religions',[['x_brel','Brush faith'],['x_frel','Found a religion'],['e_rel','Faith of the country']]],
-  ethnicities:['Ethnicities',[['x_beth','Brush people'],['x_feth','Found an ethnicity'],['e_eth','People of the country']]],
-  provinces:['Provinces',[['e_prov','Provinces and status']]],
+  countries:['Countries',[['t_countries','All countries'],['e_id','Overview: identity'],['e_gov','Government and purpose'],['e_num','Realm numbers'],['e_know','Knowledge and society'],['e_dip','Diplomacy'],['x_found','Create new nation'],['x_brush','Brush territory'],['e_land','Territory shortcuts'],['e_danger','Drastic actions']]],
+  religions:['Religions',[['t_religions','All religions'],['x_brel','Brush faith'],['x_frel','Found a religion'],['e_rel','Faith of the country']]],
+  ethnicities:['Ethnicities',[['t_ethnicities','All peoples'],['x_beth','Brush people'],['x_feth','Found an ethnicity'],['e_eth','People of the country']]],
+  provinces:['Provinces',[['t_provinces','Province list'],['e_prov','Provinces and status']]],
   ores:['Ores',[['x_bore','Brush ores'],['e_ore','Ores of the country']]],
-  armies:['Armies',[['e_mil','Army, navy and economy']]],
-  cities:['Cities and trade',[['e_city','Cities'],['e_trade','Trade and embargoes']]]
+  armies:['Armies',[['t_armies','All armies'],['e_mil','Army, navy and economy']]],
+  cities:['Cities and trade',[['t_cities','All cities'],['e_city','Cities'],['e_trade','Trade and embargoes']]]
 };
-const XSEC={x_found:['found','found'],x_feth:['found','ethnic'],x_frel:['found','faith'],x_brush:['paint','territory'],x_beth:['paint','ethnicity'],x_brel:['paint','religion'],x_bore:['paint','ore']};
+const XSEC={t_countries:['table','countries'],t_religions:['table','religions'],t_ethnicities:['table','ethnicities'],t_provinces:['table','provinces'],t_cities:['table','cities'],t_armies:['table','armies'],x_found:['found','found'],x_feth:['found','ethnic'],x_frel:['found','faith'],x_brush:['paint','territory'],x_beth:['paint','ethnicity'],x_brel:['paint','religion'],x_bore:['paint','ore']};
 let edMode='countries';const edSubs={};
 function setEdMode(m,sub){
   if(!EDM[m])m='countries';edMode=m;
@@ -4983,7 +5008,8 @@ function setEdSub(k){
   document.querySelectorAll('#edSecNav button').forEach(b=>b.setAttribute('aria-current',String(b.dataset.esec===k)));
   const x=XSEC[k];
   if(x){
-    if(x[0]==='found'){foundSec=x[1];setEdMain('found')}
+    if(x[0]==='table'){tbName=x[1];setEdMain('table')}
+    else if(x[0]==='found'){foundSec=x[1];setEdMain('found')}
     else{edLayer=x[1];setEdMain('paint')}
   }else{edSec=k;ceKey='';setEdMain('country')}
   const m=$('#edPaintView').parentElement;if(m)m.scrollTop=0;
@@ -5802,6 +5828,170 @@ document.addEventListener('click',e=>{
   if(g){selectCountry(+g.dataset.cid,'country')}
 });
 $('#lnExtinct').addEventListener('change',()=>renderLineage(true));
+/* ================= editor tables: one sortable, searchable list per kind of object ================= */
+const TBS={countries:{q:'',s:'pop',d:-1},religions:{q:'',s:'fol',d:-1},ethnicities:{q:'',s:'fol',d:-1},provinces:{q:'',s:'area',d:-1},cities:{q:'',s:'pop',d:-1,only:false},armies:{q:'',s:'army',d:-1}};
+let tbName='countries';
+const escT=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const dotT=rgb=>`<i class="dot" style="background:${rgbCss(rgb)}"></i>`;
+const nf0=v=>Math.round(v).toLocaleString('en-US');
+function tbDef(name){
+  const T=TBS[name];
+  const cEd=(key)=>(r,v)=>{const m=applyField(r,key,v);afterEdit(r,{});return m};
+  if(name==='countries')return{
+    rows:()=>living.filter(c=>c.alive),id:c=>c.id,sel:c=>c.id===sel,
+    cols:[
+      {k:'color',h:'',t:'color',v:c=>hexOf(c.rgb),edit:cEd('color')},
+      {k:'name',h:'Country',t:'text',v:c=>c.base,edit:cEd('name'),w:118},
+      {k:'gov',h:'Government',v:c=>GOV[c.gov].n,show:c=>escT(GOV[c.gov].n)},
+      {k:'pop',h:'Pop.',t:'num',v:c=>Math.round(c.pop),edit:cEd('pop')},
+      {k:'area',h:'Land px',v:c=>c.area,fmt:nf0,r:1},
+      {k:'army',h:'Army',t:'num',v:c=>Math.round(c.army),edit:cEd('army')},
+      {k:'gold',h:'Gold',t:'num',v:c=>Math.round(c.gold),edit:cEd('gold')},
+      {k:'tech',h:'Tech',t:'num',step:.1,v:c=>+c.tech.toFixed(2),edit:cEd('tech')},
+      {k:'stab',h:'Stab.',t:'num',v:c=>Math.round(c.stab),edit:cEd('stab')},
+      {k:'faith',h:'State faith',v:c=>RELIG[c.coreRel].n},
+      {k:'wars',h:'Wars',v:c=>c.wars.size,r:1}
+    ],
+    search:c=>c.base+' '+c.full+' '+GOV[c.gov].n,
+    onRow:c=>{sel=c.id;ovDirty=true;centerOn(c);if(typeof afterSel==='function')afterSel()},
+    tools:`<button class="btn" type="button" data-tl="x_found">+ Create new nation</button><button class="btn" type="button" data-tl="x_brush">Brush territory</button>`,
+    note:'Click a row to select the country and fly to it. Edit values right in the table.'
+  };
+  if(name==='religions'){const RT=relTotals();return{
+    rows:()=>RELIG.slice(1).map(r=>({r,fol:RT[r.id]||0,st:living.filter(c=>c.coreRel===r.id).length})),id:x=>x.r.id,sel:()=>false,
+    cols:[
+      {k:'color',h:'',t:'color',v:x=>hexOf(x.r.c),edit:(x,v)=>{const c=unhex(v);if(c){x.r.c=c;ovDirty=true;if(ready){paintAll();flush(true)}}return ''}},
+      {k:'name',h:'Religion',t:'text',v:x=>x.r.n,edit:(x,v)=>{const n=String(v).trim().slice(0,26);if(n){x.r.n=n;ovDirty=true;return 'Religion renamed.'}return ''},w:170},
+      {k:'fol',h:'Land px',v:x=>x.fol,fmt:nf0,r:1},
+      {k:'st',h:'State religion of',v:x=>x.st,r:1},
+      {k:'par',h:'Branch of',v:x=>x.r.parent?RELIG[x.r.parent].n:'-'},
+      {k:'born',h:'Founded',v:x=>x.r.founded||0,fmt:v=>'Year '+yr(v),r:1},
+      {k:'zeal',h:'Zeal',v:x=>+x.r.zeal.toFixed(2),r:1}
+    ],
+    search:x=>x.r.n,
+    rowBtn:x=>`<button class="btn sm" type="button" data-ta="brush" title="Paint this religion on the map">Brush</button>`,
+    onAct:(x,a)=>{if(a==='brush'){setEdMode('religions','x_brel');const s=$('#edRel');if(s)s.value=String(x.r.id)}},
+    tools:`<button class="btn" type="button" data-tl="x_frel">+ Found a religion</button><button class="btn" type="button" data-tl="x_brel">Brush faith</button>`,
+    note:'Faiths with no followers are extinct but stay in the history.'
+  }}
+  if(name==='ethnicities'){const ET=ethTotals();return{
+    rows:()=>ETH.slice(1).map(e=>({e,fol:ET[e.id]||0,st:living.filter(c=>c.stateEth.includes(e.id)).length})),id:x=>x.e.id,sel:()=>false,
+    cols:[
+      {k:'color',h:'',t:'color',v:x=>hexOf(x.e.c),edit:(x,v)=>{const c=unhex(v);if(c){x.e.c=c;ovDirty=true;if(ready){paintAll();flush(true)}}return ''}},
+      {k:'name',h:'People',t:'text',v:x=>x.e.n,edit:(x,v)=>{const n=String(v).trim().slice(0,26);if(n){x.e.n=n;ovDirty=true;return 'People renamed.'}return ''},w:170},
+      {k:'fol',h:'Land px',v:x=>x.fol,fmt:nf0,r:1},
+      {k:'st',h:'State people of',v:x=>x.st,r:1},
+      {k:'par',h:'Origin',v:x=>x.e.parents?'mixed of '+x.e.parents.map(p=>ETH[p]?ETH[p].n:'?').join(' + '):(x.e.dialectOf?'dialect of '+(ETH[x.e.dialectOf]?ETH[x.e.dialectOf].n:'?'):'original')},
+      {k:'born',h:'Born',v:x=>x.e.born||0,fmt:v=>'Year '+yr(v),r:1}
+    ],
+    search:x=>x.e.n,
+    rowBtn:x=>`<button class="btn sm" type="button" data-ta="brush" title="Paint this people on the map">Brush</button>`,
+    onAct:(x,a)=>{if(a==='brush'){setEdMode('ethnicities','x_beth');const s=$('#edEth');if(s)s.value=String(x.e.id)}},
+    tools:`<button class="btn" type="button" data-tl="x_feth">+ Found an ethnicity</button><button class="btn" type="button" data-tl="x_beth">Brush people</button>`,
+    note:'Peoples with no land are extinct but stay in the history.'
+  }}
+  if(name==='provinces'){const c=selC();return{
+    rows:()=>{const o=[];if(c&&c.pst)for(const [pid,rec] of c.pst){const P=PR[pid];if(P&&!P.dead&&P.c===c.id)o.push({pid,P,rec})}return o},id:x=>x.pid,sel:()=>false,
+    need:c?'':'Select a country first (click it on the map or in the Countries list).',
+    cols:[
+      {k:'name',h:'Province',t:'text',v:x=>x.P.n,edit:(x,v)=>applyField(c,'pn_'+x.pid,v)||'',w:150},
+      {k:'st',h:'Status',t:'sel',opts:Object.keys(PST).map(k=>[k,PST[k].n]),v:x=>x.rec.st,edit:(x,v)=>applyField(c,`ps_${x.pid}_st`,v)},
+      {k:'loy',h:'Loyalty',t:'num',v:x=>Math.round(x.rec.loy),edit:(x,v)=>applyField(c,`ps_${x.pid}_loy`,v)},
+      {k:'area',h:'Land px',v:x=>x.P.area,fmt:nf0,r:1}
+    ],
+    search:x=>x.P.n,
+    onRow:x=>{const P=x.P;if(P.area>0)centerOnPx(Math.round(P.sy/P.area)*W+Math.round(P.sx/P.area),Math.sqrt(P.area))},
+    tools:`<button class="btn" type="button" data-do="pcreate">+ Create province (click map)</button><button class="btn" type="button" data-tl="e_prov">Split, merge and more</button>`,
+    note:c?`Provinces of the ${c.full}. Click a row to fly to it.`:''
+  }}
+  if(name==='cities')return{
+    rows:()=>{const o=[];CITIES.forEach((ct,i)=>{if(!ct||ct.dead)return;const c=owner[ct.i]?countries[owner[ct.i]-1]:null;if(T.only&&sel&&(!c||c.id!==sel))return;o.push({i,ct,c})});return o},id:x=>x.i,sel:x=>x.c&&x.c.id===sel&&false,
+    cols:[
+      {k:'name',h:'City',t:'text',v:x=>x.ct.n,edit:(x,v)=>x.c?applyField(x.c,`cn_${x.i}_name`,v):'',w:150},
+      {k:'cn',h:'Country',v:x=>x.c?x.c.base:'free land',show:x=>x.c?dotT(x.c.rgb)+escT(x.c.base):'free land'},
+      {k:'pop',h:'Population',v:x=>x.ct.pop,fmt:nf0,r:1},
+      {k:'cap',h:'Capital',v:x=>x.c&&x.c.capital===x.ct.i?1:0,show:x=>x.c&&x.c.capital===x.ct.i?'capital':''}
+    ],
+    search:x=>x.ct.n+' '+(x.c?x.c.base:''),
+    rowBtn:x=>x.c?`<button class="btn sm" type="button" data-ta="cap">Make capital</button><button class="btn sm" type="button" data-ta="del">Remove</button>`:'',
+    onAct:(x,a)=>{if(!x.c)return;let m='';if(a==='cap')m=cityMakeCapital(x.c,x.ct);else if(a==='del')m=cityRemove(x.ct);if(m)toast(m);ovDirty=true;ceVer++},
+    onRow:x=>{centerOnPx(x.ct.i,8);if(x.c){sel=x.c.id;ovDirty=true}},
+    tools:`<button class="btn" type="button" data-do="ccreate">+ Found city (click map)</button><label class="tcheck"><input type="checkbox" data-only ${T.only?'checked':''}> only the selected country</label>`,
+    note:'Click a row to fly to the city.'
+  };
+  if(name==='armies')return{
+    rows:()=>living.filter(c=>c.alive),id:c=>c.id,sel:c=>c.id===sel,
+    cols:[
+      {k:'name',h:'Country',v:c=>c.base,show:c=>dotT(c.rgb)+escT(c.base),w:150},
+      {k:'army',h:'Army',t:'num',v:c=>Math.round(c.army),edit:cEd('army')},
+      {k:'pow',h:'Strength',v:c=>c.power,fmt:nf0,r:1},
+      {k:'mor',h:'Morale',t:'num',v:c=>Math.round(c.morale),edit:cEd('morale')},
+      {k:'mix',h:'Units',v:c=>mixOf(c)[0],show:c=>{const m=mixOf(c);return UNITS.map((u,i)=>`<span title="${u}">${u[0]}${Math.round(m[i]*100)}</span>`).join(' ')}},
+      {k:'fl',h:'Fleet',v:c=>fleetHP(c),fmt:v=>Math.round(v*100)+'%',r:1},
+      {k:'hg',h:'Home guard',v:c=>homeF(c),fmt:v=>Math.round(v*100)+'%',r:1},
+      {k:'cmd',h:'Commanders',v:c=>(c.cmds||[]).filter(k=>!k.dead).length,r:1},
+      {k:'wars',h:'Wars',v:c=>c.wars.size,r:1},
+      {k:'exp',h:'Expeditions',v:c=>expActive(c),r:1}
+    ],
+    search:c=>c.base+' '+c.full,
+    onRow:c=>{sel=c.id;ovDirty=true;centerOn(c)},
+    tools:`<button class="btn" type="button" data-tl="e_mil">Details of the selected army</button><button class="btn" type="button" data-do="exped">Launch expedition (click map)</button>`,
+    note:'Edit army size and morale in the table. Open the details to set unit mix, home guard and commanders.'
+  };
+}
+let tbRows=[],tbDefCur=null;
+function renderTable(){
+  const v=$('#edTableView');if(!v||v.hidden||!v.querySelector)return;
+  const name=tbName,T=TBS[name],D=tbDef(name);if(!D)return;
+  tbDefCur=D;
+  const old=v.querySelector('[data-q]'),hadF=old&&document.activeElement===old,caret=hadF?old.selectionStart:0;
+  const sc=v.querySelector('.tbwrap'),st=sc?sc.scrollTop:0;
+  let rows=D.need?[]:D.rows();
+  const q=T.q.trim().toLowerCase();if(q)rows=rows.filter(r=>D.search(r).toLowerCase().includes(q));
+  const col=D.cols.find(c=>c.k===T.s)||D.cols[1]||D.cols[0];
+  rows=rows.map(r=>[r,col.v(r)]).sort((a,b)=>{const x=a[1],y=b[1];return (typeof x==='string'?x.localeCompare(y):x-y)*T.d}).map(x=>x[0]);
+  tbRows=rows;
+  const th=D.cols.map(c=>`<th data-sort="${c.k}" class="${c.r?'r':''}${c.k===T.s?' on':''}" ${c.h?'':'style="width:34px"'}>${c.h}${c.k===T.s?(T.d>0?' &#9650;':' &#9660;'):''}</th>`).join('')+(D.rowBtn?'<th></th>':'');
+  const tr=rows.map((r,ri)=>`<tr data-ri="${ri}" class="${D.sel&&D.sel(r)?'sel':''}">`+D.cols.map((c,ci)=>{
+    const val=c.v(r);let inner;
+    if(c.edit&&c.t==='color')inner=`<input type="color" data-ci="${ci}" value="${val}" aria-label="Colour">`;
+    else if(c.edit&&c.t==='text')inner=`<input type="text" class="tin" data-ci="${ci}" value="${escT(val)}" maxlength="28" style="width:${c.w||120}px" aria-label="${c.h}">`;
+    else if(c.edit&&c.t==='num')inner=`<input type="number" class="tin n" data-ci="${ci}" value="${val}" step="${c.step||'any'}" aria-label="${c.h}">`;
+    else if(c.edit&&c.t==='sel')inner=`<select class="tin" data-ci="${ci}" aria-label="${c.h}">${c.opts.map(o=>`<option value="${o[0]}" ${o[0]===val?'selected':''}>${o[1]}</option>`).join('')}</select>`;
+    else inner=c.show?c.show(r):escT(c.fmt?c.fmt(val):val);
+    return `<td class="${c.r?'r':''}">${inner}</td>`}).join('')+(D.rowBtn?`<td class="act">${D.rowBtn(r)}</td>`:'')+'</tr>').join('');
+  v.innerHTML=`<div class="tbtools"><input type="search" class="tsearch" data-q placeholder="Search ${name}..." value="${escT(T.q)}" aria-label="Search"><span class="muted tcount">${rows.length} shown</span><span class="tbtn">${D.tools||''}</span></div>
+  ${D.need?`<p class="muted">${D.need}</p>`:`<div class="tbwrap"><table class="tbl"><thead><tr>${th}</tr></thead><tbody>${tr||`<tr><td colspan="${D.cols.length+1}" class="muted">Nothing here yet.</td></tr>`}</tbody></table></div>`}
+  <p class="muted tnote">${D.note||''}</p>`;
+  const w=v.querySelector('.tbwrap');if(w)w.scrollTop=st;
+  if(hadF){const n=v.querySelector('[data-q]');n.focus();try{n.setSelectionRange(caret,caret)}catch(e){}}
+}
+function showTable(name){tbName=name;const v=$('#edTableView');if(v&&!v.hidden)renderTable()}
+(function(){
+  const v=$('#edTableView');if(!v)return;
+  v.addEventListener('input',e=>{if(e.target.dataset.q!==undefined){TBS[tbName].q=e.target.value;renderTable()}});
+  v.addEventListener('change',e=>{
+    const t=e.target;
+    if(t.dataset.only!==undefined){TBS[tbName].only=t.checked;renderTable();return}
+    if(t.dataset.ci===undefined||!tbDefCur)return;
+    const tr=t.closest('tr'),r=tbRows[+tr.dataset.ri],col=tbDefCur.cols[+t.dataset.ci];if(!r||!col||!col.edit)return;
+    const m=col.edit(r,t.value);if(m)toast(m);ovDirty=true;renderTable();
+  });
+  v.addEventListener('click',e=>{
+    const t=e.target;
+    const th=t.closest('th[data-sort]');
+    if(th){const T=TBS[tbName];if(T.s===th.dataset.sort)T.d=-T.d;else{T.s=th.dataset.sort;T.d=(th.classList.contains('r')||['pop','army','gold','tech','stab'].includes(T.s))?-1:1}renderTable();return}
+    const tl=t.closest('[data-tl]');if(tl){setEdSub(tl.dataset.tl);return}
+    const dd=t.closest('[data-do]');if(dd){const c=selC();const a=dd.dataset.do;if(a==='exped'||a==='pcreate'||a==='ccreate'){if(!c&&a!=='pcreate'&&a!=='ccreate'){toast('Select a country first.');return}if(!c){toast('Select a country first.');return}const m=doAction(c,a,dd);if(m)toast(m)}return}
+    if(t.closest('input,select,label'))return;
+    const tr=t.closest('tr[data-ri]');if(!tr)return;
+    const r=tbRows[+tr.dataset.ri];if(!r)return;
+    const ab=t.closest('[data-ta]');
+    if(ab){tbDefCur.onAct&&tbDefCur.onAct(r,ab.dataset.ta);renderTable();return}
+    if(tbDefCur.onRow){tbDefCur.onRow(r);renderTable()}
+  });
+  setInterval(()=>{const v=$('#edTableView');if(!v||v.hidden||curTab!=='editor')return;const a=document.activeElement;if(a&&v.contains(a)&&/INPUT|SELECT/.test(a.tagName))return;renderTable()},1500);
+})();
 
 </script>
 
