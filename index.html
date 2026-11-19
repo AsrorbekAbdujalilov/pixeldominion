@@ -1,17 +1,18 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <meta charset="utf-8">
 <title>Pixel Dominion</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* Layout: a chart room. The map fills the left, a ledger of nations sits on the right. Single dark look by choice. */
 :root{
-  --bg:#0c1318; --panel:#121b21; --panel-2:#18232b; --line:#26333c; --fg:#e2e9ec; --mute:#8696a0;
-  --accent:#74d3c9; --accent-ink:#06211f; --good:#7fd08a; --warn:#e9b45c; --bad:#ea6d63; --sea:#12385c;
-  --f-display:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;
-  --f-body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --bg:#120e0a; --panel:#261c13; --panel-2:#33261a; --line:#6a4f2b; --fg:#f2e5c6; --mute:#bba57d;
+  --accent:#d9a64e; --accent-ink:#1f1408; --pbg:38,28,19; --pline:#86642f; --pacc:217,166,78; --good:#8fcf7a; --warn:#e9b45c; --bad:#e2674f; --sea:#12385c;
+  --f-display:'Cinzel','Trajan Pro',Georgia,serif;
+  --f-body:'Cormorant Garamond',Georgia,'Times New Roman',serif;
   --f-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
   color-scheme:dark;
 }
@@ -232,7 +233,7 @@ body{padding:0;overflow:hidden}
 .tabs>button[aria-selected="true"],.chbtn[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .chbtn{background:var(--panel-2);border-color:var(--line);color:var(--fg)}
 .morewrap{position:relative}
-.more{position:absolute;top:calc(100% + 6px);left:0;z-index:40;width:250px;display:grid;gap:9px;background:#0f171d;border:1px solid #2c3b45;border-radius:10px;padding:12px;box-shadow:0 14px 40px rgba(0,0,0,.55)}
+.more{position:absolute;top:calc(100% + 6px);left:0;z-index:40;width:250px;display:grid;gap:9px;background:rgb(var(--pbg));border:1px solid var(--pline);border-radius:10px;padding:12px;box-shadow:0 14px 40px rgba(0,0,0,.55)}
 .more .muted{font-size:12px;margin:0}
 .mtools{display:grid;gap:6px}
 .mtools .btn{background:#1d2b35;border-color:#3a4b57;color:var(--fg);text-align:left}
@@ -245,7 +246,7 @@ body{padding:0;overflow:hidden}
 .mapov .legend{background:rgba(10,16,20,.88);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px}
 .hoverbar{background:rgba(10,16,20,.82);border:1px solid var(--line);border-radius:8px;padding:4px 10px;min-height:0;max-width:100%}
 .hoverbar:empty{display:none}
-.panel{position:absolute;z-index:20;left:12px;top:12px;display:flex;flex-direction:column;background:rgba(14,22,28,.985);border:1px solid #2c3b45;border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.6);overflow:hidden}
+.panel{position:absolute;z-index:20;left:12px;top:12px;display:flex;flex-direction:column;background:rgba(var(--pbg),.985);border:1px solid var(--pline);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.6);overflow:hidden}
 .panel.m{width:min(780px,calc(100% - 24px));height:min(620px,calc(100% - 24px))}
 .panel.l{width:min(1180px,calc(100% - 24px));height:calc(100% - 24px)}
 .pbar{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 16px;border-bottom:1px solid var(--line);flex:none}
@@ -296,7 +297,7 @@ body{padding:0;overflow:hidden}
 }
 
 /* v11.1: smaller, centred, translucent panels */
-.panel{left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(14,22,28,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.panel{left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(var(--pbg),.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .panel.m{width:min(580px,calc(100% - 24px));height:min(340px,calc(100% - 24px))}
 .panel.l{width:min(1100px,calc(100% - 24px));height:min(620px,calc(100% - 24px))}
 .cp{grid-template-columns:170px minmax(0,1fr)}
@@ -308,9 +309,9 @@ body{padding:0;overflow:hidden}
 .panel [data-fp] .row{margin-top:10px}
 
 .panel.m{top:auto;bottom:12px;transform:translateX(-50%)}
-@media (max-width:760px){.panel,.panel.m,.panel.l{left:0;right:0;top:auto;bottom:0;transform:none;width:auto;bottom:0;height:min(80%,calc(100% - 8px));background:rgba(14,22,28,.9)}.panel.m{height:min(62%,calc(100% - 8px))}.ed{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){.panel,.panel.m,.panel.l{left:0;right:0;top:auto;bottom:0;transform:none;width:auto;bottom:0;height:min(80%,calc(100% - 8px));background:rgba(var(--pbg),.9)}.panel.m{height:min(62%,calc(100% - 8px))}.ed{grid-template-columns:minmax(0,1fr)}}
 
-.selchip{position:absolute;z-index:8;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:stretch;background:rgba(14,22,28,.88);border:1px solid #2c3b45;border-radius:99px;box-shadow:0 6px 20px rgba(0,0,0,.45);overflow:hidden;max-width:calc(100% - 24px)}
+.selchip{position:absolute;z-index:8;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:stretch;background:rgba(var(--pbg),.88);border:1px solid var(--pline);border-radius:99px;box-shadow:0 6px 20px rgba(0,0,0,.45);overflow:hidden;max-width:calc(100% - 24px)}
 .selchip button{background:none;border:0;color:var(--fg);padding:6px 12px;display:flex;align-items:center;gap:8px;min-width:0}
 .selchip button:hover{background:rgba(255,255,255,.08)}
 .selchip #selOpen span{font:800 15px var(--f-display);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -329,7 +330,7 @@ body{padding:0;overflow:hidden}
 }
 @media (max-width:760px){.pdock{display:none}}
 @media (min-width:761px){.mapwrap[data-dock="l"] .selchip{left:72%;max-width:40%}.mapwrap[data-dock="r"] .selchip{left:28%;max-width:40%}}
-#panChip{pointer-events:auto;background:rgba(14,22,28,.92);box-shadow:0 6px 20px rgba(0,0,0,.45)}
+#panChip{pointer-events:auto;background:rgba(var(--pbg),.92);box-shadow:0 6px 20px rgba(0,0,0,.45)}
 .mapwrap[data-dock="r"] .mapov{right:calc(min(540px,50%) + 12px)}
 
 .panel.s{width:min(380px,calc(100% - 24px));height:auto;max-height:calc(100% - 24px)}
@@ -355,11 +356,11 @@ body{padding:0;overflow:hidden}
 .prow{display:flex;gap:8px;align-items:center;font-size:12.5px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.07)}.prow .lb{flex:1;min-width:0}.lbar{width:54px;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden;flex:none}.lbar i{display:block;height:100%}
 .pedit{border-bottom:1px solid rgba(255,255,255,.07);padding:7px 0}.pedit .ph{font-size:12.5px;margin-bottom:5px}.sh2{margin:14px 0 4px;font-size:11.5px;opacity:.7;text-transform:uppercase;letter-spacing:.06em}.pname{width:150px;max-width:55%;font:inherit;padding:2px 6px}.pb{margin:0 0 5px}.ps2{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.ps2 select{flex:1;min-width:104px}.ps2 .rng{flex:1;min-width:110px}
 .lnbox{overflow:auto;max-height:58vh;border:1px solid var(--line);border-radius:8px;padding:6px;margin-top:6px}#lnChart.lnbox{max-height:none}
-@media (min-width:761px){.panel.ted{width:min(980px,calc(100% - 24px));height:min(calc(100% - 24px),640px);top:auto;bottom:12px}
-.panel.ted .ed{grid-template-columns:104px 150px minmax(0,1fr)}
+@media (min-width:761px){.panel.ted{width:min(940px,calc(100% - 340px));left:calc(50% + 158px);z-index:50;height:min(calc(100% - 24px),640px);top:auto;bottom:12px}
+.panel.ted .ed{grid-template-columns:170px minmax(0,1fr)}
 .panel.ted .snav button{font-size:12.5px;padding:6px 8px}}
 .clock{font-size:14px}
-.panel.ted{background:rgba(14,22,28,.95)}
+.panel.ted{background:rgba(var(--pbg),.95)}
 
 .app{position:relative}
 .pinbtn{padding:6px 10px;line-height:1}
@@ -382,11 +383,11 @@ body{padding:0;overflow:hidden}
 .tbl{border-collapse:collapse;width:100%;font-size:12px}
 .tbl th{font-size:11px;letter-spacing:.02em}
 .tbl th{position:sticky;top:0;background:var(--panel);text-align:left;font-weight:600;padding:6px 6px;cursor:pointer;white-space:nowrap;z-index:1;border-bottom:1px solid var(--line,rgba(255,255,255,.18))}
-.tbl th.on{color:var(--accent,#7fe3d0)}
+.tbl th.on{color:var(--accent,var(--accent))}
 .tbl td{padding:3px 6px;border-bottom:1px solid rgba(255,255,255,.06);white-space:nowrap}
 .tbl .r{text-align:right}
 .tbl tbody tr{cursor:pointer}.tbl tbody tr:hover{background:rgba(255,255,255,.06)}
-.tbl tr.sel{background:rgba(127,227,208,.14)}
+.tbl tr.sel{background:rgba(var(--pacc),.14)}
 .tbl .tin{background:transparent;border:1px solid transparent;border-radius:5px;padding:3px 5px;color:inherit;font:inherit;max-width:150px}
 .tbl .tin.n{width:72px;text-align:right}
 .tbl .tin:hover,.tbl .tin:focus{border-color:var(--line,rgba(255,255,255,.3));background:rgba(0,0,0,.25)}
@@ -394,6 +395,126 @@ body{padding:0;overflow:hidden}
 .tbl .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
 .tbl .sm{padding:2px 8px;font-size:11.5px;margin-right:4px}
 .tnote{margin:8px 0 0}
+.ctxm{position:fixed;z-index:90;min-width:190px;max-width:260px;padding:5px;background:var(--panel);border:1px solid var(--line,rgba(255,255,255,.2));border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:1px}
+.ctxh{padding:5px 9px 6px;font-size:11.5px;letter-spacing:.03em;text-transform:uppercase;opacity:.65;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:3px}
+.ctxm button{all:unset;box-sizing:border-box;padding:7px 10px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--text,#e8eef2)}
+.ctxm button:hover,.ctxm button:focus-visible{background:rgba(var(--pacc),.18)}
+
+/* desktop left bar + editor windows */
+#lbar,#lbOpen,.ewin{display:none}
+@media (min-width:761px){
+#lbar{display:block;position:absolute;left:10px;top:10px;z-index:30;width:296px;max-height:calc(100% - 20px);overflow:auto;background:rgba(var(--pbg),.92);border:1px solid var(--pline);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#lbar[hidden]{display:none}
+#lbOpen{display:block;position:absolute;left:10px;top:10px;z-index:30;width:34px;height:34px;border-radius:10px;border:1px solid var(--pline);background:rgba(var(--pbg),.92);color:var(--fg);cursor:pointer}
+#lbOpen[hidden]{display:none}
+.lbh{display:flex;align-items:stretch;border-bottom:1px solid var(--pline)}
+.lbt{flex:1;padding:9px 6px;background:none;border:0;color:var(--mute);font:600 13px var(--f-sans,inherit);cursor:pointer;border-bottom:2px solid transparent}
+.lbt[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent,var(--accent))}
+.lbc{width:34px;background:none;border:0;color:var(--mute);cursor:pointer}
+.lbp{padding:10px 12px 12px}
+.lbp[hidden]{display:none}
+.lbl{display:block;font-size:11.5px;color:var(--mute);margin:8px 0 3px}
+.lbp select{width:100%}
+.lbg{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:9px}
+.lbg button,.lbb{padding:6px 7px;font:500 12.5px var(--f-sans,inherit);color:var(--fg);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:7px;cursor:pointer;text-align:center}
+.lbg button:hover,.lbb:hover{background:rgba(var(--pacc),.14)}
+.lbg button[aria-pressed="true"]{background:rgba(var(--pacc),.22);border-color:rgba(var(--pacc),.55);color:#fff}
+.lbg button[aria-pressed="false"][data-tg]{opacity:.62}
+.lbg button:disabled{opacity:.3;cursor:default}
+.lbr{display:flex;gap:6px;margin-top:8px}.lbb{flex:1}
+.lbs{margin:12px 0 0;font:600 11px var(--f-sans,inherit);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:4px}
+.lbs:first-child{margin-top:0}
+.lbn{margin:10px 0 0;font-size:11.5px;color:var(--mute);line-height:1.4}
+.ewin{display:flex;flex-direction:column;position:absolute;z-index:40;width:min(760px,calc(100% - 400px));height:min(470px,calc(100% - 90px));min-width:360px;min-height:120px;resize:both;overflow:hidden;background:rgb(var(--pbg));border:1px solid var(--pline);border-radius:10px;box-shadow:0 16px 44px rgba(0,0,0,.55)}
+.ewin[hidden]{display:none}
+.ewin.min{height:auto!important;min-height:0;resize:none}.ewin.min .ewbody{display:none}
+.ewh{display:flex;align-items:center;gap:6px;padding:7px 8px 7px 12px;background:rgba(var(--pacc),.1);border-bottom:1px solid var(--pline);cursor:move;user-select:none;font-size:13px;letter-spacing:.04em}
+.ewb1{width:24px;height:22px;line-height:1;border-radius:6px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:var(--fg);cursor:pointer}
+.ewb1:hover{background:rgba(255,255,255,.14)}
+.ewbody{flex:1;min-height:0;display:flex;flex-direction:column;padding:8px 10px 6px}
+.ewbody .tbwrap{flex:1 1 auto;min-height:0;max-height:none}
+.ewbody .tbbar,.tbbar{display:flex;flex-wrap:wrap;gap:6px;padding-top:8px}
+.ewbody .tnote{margin:6px 0 0;font-size:11.5px}
+}
+.tbbar{display:flex;flex-wrap:wrap;gap:6px;padding-top:8px}
+.tbbar .btn[aria-pressed="true"]{background:rgba(var(--pacc),.22)}
+
+/* desktop: no top bar. Everything lives in the left bar. */
+#lbar .lbtime{padding:8px 12px 6px;border-bottom:1px solid var(--pline)}
+.lbtop{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 8px 0 12px}
+.lbbrand{font:800 19px/1 var(--f-display);letter-spacing:.05em;text-transform:uppercase}
+.lbt1{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-bottom:7px}
+.lbt1 .clock{font-size:18px;min-width:0;order:-1}
+.lbt1 .kpis{font-size:11px;gap:2px 10px;flex-wrap:nowrap;white-space:nowrap}
+.lbt1 .kpis span:nth-child(2){display:none}
+.lbt2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lbt2 .seg{flex:none}
+.lbmv{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:6px 8px;color:var(--fg);font:500 12.5px var(--f-body);text-align:center;cursor:pointer;white-space:nowrap}
+.lbmv:hover{background:rgba(var(--pacc),.18)}
+.lbmv[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.lbg .ticker,#lbar .ticker{grid-column:1/-1;font-size:12px}
+.lbz{display:flex;align-items:center;gap:6px;margin-top:10px}.lbz .z{display:flex;gap:5px}
+@media (min-width:761px){
+  body{padding:0}.app{gap:0;height:100vh;min-height:0}
+  .top{display:none}#topTab{display:none!important}
+  #lbar{width:318px}
+  .panel.l,.panel.m:not(.ted){left:calc(50% + 164px);width:min(1100px,calc(100% - 352px));max-height:calc(100% - 24px)}
+  .panel.s:not(.dl):not(.dr){left:calc(50% + 164px)}
+}
+
+#tdock,.insp{display:none}
+@media (min-width:761px){
+  #tdock{display:flex;align-items:center;gap:10px;position:absolute;right:12px;bottom:12px;z-index:35;padding:6px 10px;background:rgba(var(--pbg),.93);border:1px solid var(--pline);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+  #tdock .clock{font-size:15px;min-width:92px}
+  #lbar .lbtime{display:none}
+  .lbk{padding:2px 12px 8px;border-bottom:1px solid var(--pline)}
+  .lbk .kpis{font-size:11px;gap:2px 10px;flex-wrap:nowrap;white-space:nowrap}
+  .lbk .kpis span:nth-child(2){display:none}
+  .lbz{display:flex;align-items:center;gap:6px;margin-top:9px}.lbz .z{display:flex;gap:5px}.lbz .lbb{flex:1}
+  .mapov{bottom:64px}
+  .insp{display:flex;flex-direction:column;position:absolute;z-index:70;left:calc(50% + 164px);top:50%;transform:translate(-50%,-50%);width:min(400px,calc(100% - 360px));max-height:calc(100% - 40px);background:rgb(var(--pbg));border:1px solid var(--pline);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.65)}
+  .inh{display:flex;align-items:center;gap:6px;padding:9px 10px 9px 14px;background:rgba(var(--pacc),.14);border-bottom:1px solid var(--pline);cursor:move;user-select:none;border-radius:12px 12px 0 0}
+  .inh b{font:700 15px var(--f-body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .inb{padding:10px 14px 14px;overflow:auto}
+  .ing{display:grid;gap:7px}
+  .inr{display:grid;grid-template-columns:96px 1fr;align-items:center;gap:8px;font-size:13px}
+  .inr em{font-style:normal;color:var(--mute);font-size:12px}
+  .inr input[type=text],.inr input[type=number],.inr select{width:100%;padding:5px 8px;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:6px;color:inherit;font:inherit}
+  .inr input[type=color]{width:44px;height:26px;padding:0;border:0;background:none}
+  .inbtn{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+}
+
+/* fantasy / historical look: leather, parchment and gold leaf */
+body{font-size:16px;font-weight:600;background:radial-gradient(ellipse at 50% 30%,#2a1f14 0,#120e0a 75%) fixed}
+.brand,h3,h2,.sh,.ewin .wt,.lbt,#lbar .lbh,.ctxh,.insp header,.insp h3{font-family:var(--f-display);letter-spacing:.06em}
+.brand{font-weight:800;color:var(--accent);text-shadow:0 1px 0 #000,0 0 14px rgba(217,166,78,.35)}
+button,select,input{font-family:inherit}
+.btn,.seg button,.lbg button,.lbt{font-family:var(--f-display);font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+.btn{background:linear-gradient(#3b2c1c,#2c2015);border:1px solid #6a4f2b;border-radius:3px;box-shadow:inset 0 1px 0 rgba(255,225,160,.12),0 1px 2px rgba(0,0,0,.5)}
+.btn:hover{border-color:var(--accent);color:#fff3d2}
+.btn.primary,.btn[aria-pressed="true"],.seg button[aria-pressed="true"]{background:linear-gradient(#e4b560,#b98a36);color:var(--accent-ink);border-color:#f0c878;text-shadow:0 1px 0 rgba(255,235,190,.5)}
+.mapwrap,.panel,.ewin,.insp,#lbar,#tdock,#bhud,.ctxm{border:1px solid var(--pline);border-radius:4px;box-shadow:0 14px 40px rgba(0,0,0,.65),inset 0 0 0 3px rgb(var(--pbg)),inset 0 0 0 4px rgba(217,166,78,.4)}
+.ewin header,.insp header,.ewin .wh{background:linear-gradient(#4a3720,#33261a);border-bottom:1px solid var(--pline);font-family:var(--f-display);letter-spacing:.08em;text-transform:uppercase;font-size:12.5px;color:var(--accent)}
+.tbl th{font-family:var(--f-display);font-size:11px;letter-spacing:.08em;color:var(--accent);border-bottom:1px solid var(--pline)}
+.tbl td,.inr label,.field label{font-size:15px}
+.tbl tr:hover td{background:rgba(217,166,78,.1)}
+#lbar{background:linear-gradient(rgba(44,32,20,.96),rgba(30,22,14,.96))}
+.lbt[aria-selected="true"]{color:var(--accent);border-bottom:2px solid var(--accent)}
+.clock,.kpis,#tdock{font-family:var(--f-mono)}
+input[type=text],input[type=number],select{background:#1d150d;border-color:#6a4f2b;border-radius:3px}
+input[type=range]{accent-color:var(--accent)}
+#viewport{box-shadow:inset 0 0 90px 12px rgba(10,6,2,.55)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#6a4f2b;border-radius:5px}::-webkit-scrollbar-track{background:#1d150d}
+/* less text in editor panes */
+#pane-editor .muted,#edFoundView .muted,.ewin .tnote{display:none}
+/* floating brush bar */
+#bhud{position:absolute;z-index:45;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgb(var(--pbg))}
+#bhud[hidden]{display:none}
+#bhud b{font:700 12px var(--f-display);letter-spacing:.08em;color:var(--accent);text-transform:uppercase}
+#bhud select{max-width:190px;padding:4px 6px}
+#bhud .bhz{display:inline-flex;align-items:center;gap:6px;font-size:9px;color:var(--mute)}#bhud .bhz input{width:96px}
+body.brushing .ewin,body.brushing .insp{display:none!important}
+@media(min-width:761px){#edMain{display:none!important}}
 </style>
 
 <div class="app" id="app">
@@ -4242,7 +4363,7 @@ function drawOverlay(){
 /* pointer interaction */
 const ptrs=new Map();let drag=null,pinch=null,stroking=false,lastPx=null,brushScr=null;
 let edMain='country',lastClk={t:0,o:0};
-const painting=()=>ready&&curTab==='editor'&&edMain==='paint'&&$('#edOn').checked&&!tool;
+const painting=()=>ready&&((typeof BR!=='undefined'&&BR)||curTab==='editor'&&edMain==='paint')&&$('#edOn').checked&&!tool;
 const pdist=()=>{const a=[...ptrs.values()];return{d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1,cx:(a[0].x+a[1].x)/2,cy:(a[0].y+a[1].y)/2}};
 let spaceDown=false;
 vp.addEventListener('contextmenu',e=>e.preventDefault());
@@ -4278,6 +4399,8 @@ function endPtr(e){
   if(ptrs.size<2)pinch=null;
   if(was===1&&drag&&!drag.moved&&e.type==='pointerup'&&e.button===0){
     const r=vp.getBoundingClientRect();clickAt(e.clientX-r.left,e.clientY-r.top);
+  }else if(was===1&&drag&&!drag.moved&&e.type==='pointerup'&&e.button===2&&ready){
+    const r=vp.getBoundingClientRect();openCtx(e.clientX,e.clientY,e.clientX-r.left,e.clientY-r.top);
   }
   if(!ptrs.size){drag=null;if(!spaceDown)vp.classList.remove('drag')}
 }
@@ -4300,9 +4423,9 @@ function hoverAt(mx,my){
   el.textContent=`(${i%W}, ${(i/W)|0})  ${t.n}`+(ct&&!ct.dead?`  ·  ${ct.cap?'Capital ':'City '}${ct.n} (${fmt(ct.pop)})`:'')+(pr?`  ·  ${pr.n}${prr?' ('+PST[prr.st].n.toLowerCase()+')':''}`:'')+(o?`  ·  ${countries[o-1].full}  ·  ${GOV[countries[o-1].gov].n}  ·  ${ETH[eth[i]]?ETH[eth[i]].n:''} people  ·  ${RELIG[rg[i]]?RELIG[rg[i]].n:''}`:(terr[i]>=2?'  ·  unclaimed land':''));
   showTip(i,mx,my);
 }
-let tool='';
-function setTool(t){
-  tool=(tool===t)?'':t;
+let tool='',toolSticky=false;
+function setTool(t,sticky){
+  tool=(tool===t)?'':t;toolSticky=!!tool&&!!sticky;
   $('#btnFound').setAttribute('aria-pressed',String(tool==='found'));
   $('#btnFaith').setAttribute('aria-pressed',String(tool==='faith'));
   $('#btnEthnic').setAttribute('aria-pressed',String(tool==='ethnic'));
@@ -4345,8 +4468,8 @@ function clickAt(mx,my){
     else{const o=owner[i];if(!o)msg='Click inside a country to start a religion there.';else if(countries[o-1].area<6)msg='That country is too small.';else schism(countries[o-1],i)}
     const t=tool;
     if(!msg){
-      setTool(t);flush(false);
-      const o=owner[i];if(o)selectCountry(o,'country');
+      {const st=toolSticky;setTool(t);if(st)setTool(t,true)}flush(false);
+      const o=owner[i];if(o&&!toolSticky&&curTab!=='editor'&&!DESK())selectCountry(o,'country');else if(o){sel=o;afterSel();ovDirty=true}
       {const done=t==='found'?'A new nation has been proclaimed.':t==='ethnic'?'A new people has emerged.':t==='capital'?'The capital has moved.':t==='prov'?'Province created.':t==='city'?'City founded.':t==='exped'?'Expedition launched.':'A new faith has been founded.';$('#hover').textContent=done;toast(done)}
     }else{$('#hover').textContent=msg;toast(msg)}
     return;
@@ -4354,9 +4477,11 @@ function clickAt(mx,my){
   const o=owner[i];
   if(o){
     const now=performance.now(),dbl=lastClk.o===o&&now-lastClk.t<420;lastClk={t:now,o};
-    if(dbl&&curTab!=='editor')selectCountry(o,'country');
+    if(dbl&&DESK()&&inspectAt(i,o)){sel=o;afterSel();ovDirty=true}
+    else if(dbl&&curTab!=='editor')selectCountry(o,'country');
     else{sel=o;afterSel();ovDirty=true;updateTab()}
   }else{lastClk={t:0,o:0};sel=0;afterSel();ovDirty=true;updateTab()}
+  if(curTab==='editor')editClickAt(i);
 }
 $('#zin').onclick=()=>zoomAt(view.s*1.5,vp.clientWidth/2,vp.clientHeight/2);
 $('#zout').onclick=()=>zoomAt(view.s/1.5,vp.clientWidth/2,vp.clientHeight/2);
@@ -4981,8 +5106,8 @@ function setEdMain(m){
     setLayer(edLayer);refreshEditor(true);
     $('#hover').textContent='Paint: drag to paint. Move the map with right-drag, middle-drag, Space+drag or two fingers.';
   }else if(m==='country')renderEditorCountry();
-  else if(m==='table')renderTable();
-  else setFoundSec(foundSec);
+  else if(m==='table'){refreshEditor(true);renderTable()}
+  else{refreshEditor(true);setFoundSec(foundSec)}
 }
 /* editor areas: each lists its sections; 'x_' sections are map tools, 'e_' sections edit the selected country */
 const EDM={
@@ -4996,14 +5121,15 @@ const EDM={
 };
 const XSEC={t_countries:['table','countries'],t_religions:['table','religions'],t_ethnicities:['table','ethnicities'],t_provinces:['table','provinces'],t_cities:['table','cities'],t_armies:['table','armies'],x_found:['found','found'],x_feth:['found','ethnic'],x_frel:['found','faith'],x_brush:['paint','territory'],x_beth:['paint','ethnicity'],x_brel:['paint','religion'],x_bore:['paint','ore']};
 let edMode='countries';const edSubs={};
+const edList=m=>DESK()?EDM[m][1].filter(x=>/^e_/.test(x[0])&&m==='countries'):EDM[m][1];
 function setEdMode(m,sub){
-  if(!EDM[m])m='countries';edMode=m;
+  if(!EDM[m]||DESK())m='countries';edMode=m;if(DESK()&&sub&&!/^e_/.test(sub))sub=null;
   document.querySelectorAll('#edMain button').forEach(b=>b.setAttribute('aria-current',String(b.dataset.em===m)));
-  $('#edSecNav').innerHTML=EDM[m][1].map(([k,t])=>`<button type="button" data-esec="${k}" aria-current="false">${t}</button>`).join('');
-  setEdSub(sub||edSubs[m]||EDM[m][1][0][0]);
+  $('#edSecNav').innerHTML=edList(m).map(([k,t])=>`<button type="button" data-esec="${k}" aria-current="false">${t}</button>`).join('');
+  setEdSub(sub||edSubs[m]||edList(m)[0][0]);
 }
 function setEdSub(k){
-  const list=EDM[edMode][1];if(!list.some(x=>x[0]===k))k=list[0][0];
+  const list=edList(edMode);if(!list.some(x=>x[0]===k))k=list[0][0];
   edSubs[edMode]=k;
   document.querySelectorAll('#edSecNav button').forEach(b=>b.setAttribute('aria-current',String(b.dataset.esec===k)));
   const x=XSEC[k];
@@ -5341,12 +5467,8 @@ $('#pane-editor').addEventListener('change',onEdField);
 
 /* buttons */
 function paintFor(layer,c){
-  switchTab('editor');setEdMode(layer==='territory'?'countries':layer==='ethnicity'?'ethnicities':'religions',layer==='territory'?'x_brush':layer==='ethnicity'?'x_beth':'x_brel');refreshEditor(true);
-  $('#edCountry').value=String(c.id);$('#edOn').checked=true;
-  if(layer==='territory')$('#edSettle').checked=true;
-  if(layer==='ethnicity'){$('#edEth').value=String(c.coreEth);fillEthFields()}
-  if(layer==='religion'){$('#edRel').value=String(c.coreRel);fillRelFields()}
-  toast(`Paint ready for the ${c.base}. Drag on the map.`);
+  startBrush(layer,layer==='territory'?c.id:layer==='ethnicity'?c.coreEth:c.coreRel);
+  toast(`Painting: ${c.base}. Drag on the map.`);
 }
 function doAction(c,act,btn){
   const sel2=$('#ceDip'),oid=sel2?+sel2.value:0,o=oid&&countries[oid-1]&&countries[oid-1].alive&&countries[oid-1]!==c?countries[oid-1]:null;
@@ -5842,19 +5964,19 @@ function tbDef(name){
     cols:[
       {k:'color',h:'',t:'color',v:c=>hexOf(c.rgb),edit:cEd('color')},
       {k:'name',h:'Country',t:'text',v:c=>c.base,edit:cEd('name'),w:118},
-      {k:'gov',h:'Government',v:c=>GOV[c.gov].n,show:c=>escT(GOV[c.gov].n)},
+      {k:'gov',h:'Gov.',v:c=>GOV[c.gov].n,show:c=>escT(GOV[c.gov].n)},
       {k:'pop',h:'Pop.',t:'num',v:c=>Math.round(c.pop),edit:cEd('pop')},
       {k:'area',h:'Land px',v:c=>c.area,fmt:nf0,r:1},
       {k:'army',h:'Army',t:'num',v:c=>Math.round(c.army),edit:cEd('army')},
       {k:'gold',h:'Gold',t:'num',v:c=>Math.round(c.gold),edit:cEd('gold')},
       {k:'tech',h:'Tech',t:'num',step:.1,v:c=>+c.tech.toFixed(2),edit:cEd('tech')},
       {k:'stab',h:'Stab.',t:'num',v:c=>Math.round(c.stab),edit:cEd('stab')},
-      {k:'faith',h:'State faith',v:c=>RELIG[c.coreRel].n},
+      {k:'faith',h:'Faith',v:c=>RELIG[c.coreRel].n},
       {k:'wars',h:'Wars',v:c=>c.wars.size,r:1}
     ],
     search:c=>c.base+' '+c.full+' '+GOV[c.gov].n,
     onRow:c=>{sel=c.id;ovDirty=true;centerOn(c);if(typeof afterSel==='function')afterSel()},
-    tools:`<button class="btn" type="button" data-tl="x_found">+ Create new nation</button><button class="btn" type="button" data-tl="x_brush">Brush territory</button>`,
+    bar:[{t:'+ New',new:'found',tip:'Click the map to settle a nation. Shift+click to place several.'},{t:'Brush',brush:'territory'},{t:'Overview',sec:'e_id'}],
     note:'Click a row to select the country and fly to it. Edit values right in the table.'
   };
   if(name==='religions'){const RT=relTotals();return{
@@ -5863,15 +5985,15 @@ function tbDef(name){
       {k:'color',h:'',t:'color',v:x=>hexOf(x.r.c),edit:(x,v)=>{const c=unhex(v);if(c){x.r.c=c;ovDirty=true;if(ready){paintAll();flush(true)}}return ''}},
       {k:'name',h:'Religion',t:'text',v:x=>x.r.n,edit:(x,v)=>{const n=String(v).trim().slice(0,26);if(n){x.r.n=n;ovDirty=true;return 'Religion renamed.'}return ''},w:170},
       {k:'fol',h:'Land px',v:x=>x.fol,fmt:nf0,r:1},
-      {k:'st',h:'State religion of',v:x=>x.st,r:1},
-      {k:'par',h:'Branch of',v:x=>x.r.parent?RELIG[x.r.parent].n:'-'},
+      {k:'st',h:'State of',v:x=>x.st,r:1},
+      {k:'par',h:'Parent',v:x=>x.r.parent?RELIG[x.r.parent].n:'-'},
       {k:'born',h:'Founded',v:x=>x.r.founded||0,fmt:v=>'Year '+yr(v),r:1},
       {k:'zeal',h:'Zeal',v:x=>+x.r.zeal.toFixed(2),r:1}
     ],
     search:x=>x.r.n,
     rowBtn:x=>`<button class="btn sm" type="button" data-ta="brush" title="Paint this religion on the map">Brush</button>`,
-    onAct:(x,a)=>{if(a==='brush'){setEdMode('religions','x_brel');const s=$('#edRel');if(s)s.value=String(x.r.id)}},
-    tools:`<button class="btn" type="button" data-tl="x_frel">+ Found a religion</button><button class="btn" type="button" data-tl="x_brel">Brush faith</button>`,
+    onAct:(x,a)=>{if(a==='brush')startBrush('religion',x.r.id)},
+    bar:[{t:'+ New',new:'faith',tip:'Click inside a country to start a faith. Shift+click for several.'},{t:'Brush',brush:'religion'}],
     note:'Faiths with no followers are extinct but stay in the history.'
   }}
   if(name==='ethnicities'){const ET=ethTotals();return{
@@ -5880,14 +6002,14 @@ function tbDef(name){
       {k:'color',h:'',t:'color',v:x=>hexOf(x.e.c),edit:(x,v)=>{const c=unhex(v);if(c){x.e.c=c;ovDirty=true;if(ready){paintAll();flush(true)}}return ''}},
       {k:'name',h:'People',t:'text',v:x=>x.e.n,edit:(x,v)=>{const n=String(v).trim().slice(0,26);if(n){x.e.n=n;ovDirty=true;return 'People renamed.'}return ''},w:170},
       {k:'fol',h:'Land px',v:x=>x.fol,fmt:nf0,r:1},
-      {k:'st',h:'State people of',v:x=>x.st,r:1},
+      {k:'st',h:'State of',v:x=>x.st,r:1},
       {k:'par',h:'Origin',v:x=>x.e.parents?'mixed of '+x.e.parents.map(p=>ETH[p]?ETH[p].n:'?').join(' + '):(x.e.dialectOf?'dialect of '+(ETH[x.e.dialectOf]?ETH[x.e.dialectOf].n:'?'):'original')},
       {k:'born',h:'Born',v:x=>x.e.born||0,fmt:v=>'Year '+yr(v),r:1}
     ],
     search:x=>x.e.n,
     rowBtn:x=>`<button class="btn sm" type="button" data-ta="brush" title="Paint this people on the map">Brush</button>`,
-    onAct:(x,a)=>{if(a==='brush'){setEdMode('ethnicities','x_beth');const s=$('#edEth');if(s)s.value=String(x.e.id)}},
-    tools:`<button class="btn" type="button" data-tl="x_feth">+ Found an ethnicity</button><button class="btn" type="button" data-tl="x_beth">Brush people</button>`,
+    onAct:(x,a)=>{if(a==='brush')startBrush('ethnicity',x.e.id)},
+    bar:[{t:'+ New',new:'ethnic',tip:'Click inside a country to start a people. Shift+click for several.'},{t:'Brush',brush:'ethnicity'}],
     note:'Peoples with no land are extinct but stay in the history.'
   }}
   if(name==='provinces'){const c=selC();return{
@@ -5901,7 +6023,8 @@ function tbDef(name){
     ],
     search:x=>x.P.n,
     onRow:x=>{const P=x.P;if(P.area>0)centerOnPx(Math.round(P.sy/P.area)*W+Math.round(P.sx/P.area),Math.sqrt(P.area))},
-    tools:`<button class="btn" type="button" data-do="pcreate">+ Create province (click map)</button><button class="btn" type="button" data-tl="e_prov">Split, merge and more</button>`,
+    ins:[{t:'Split',a:'psplit'},{t:'Merge',a:'pmerge'},{t:'Free',a:'pfree'}],
+    bar:[{t:'+ New',new:'prov',tip:'Click a spot in the selected country. Shift+click for several.'}],
     note:c?`Provinces of the ${c.full}. Click a row to fly to it.`:''
   }}
   if(name==='cities')return{
@@ -5909,14 +6032,15 @@ function tbDef(name){
     cols:[
       {k:'name',h:'City',t:'text',v:x=>x.ct.n,edit:(x,v)=>x.c?applyField(x.c,`cn_${x.i}_name`,v):'',w:150},
       {k:'cn',h:'Country',v:x=>x.c?x.c.base:'free land',show:x=>x.c?dotT(x.c.rgb)+escT(x.c.base):'free land'},
-      {k:'pop',h:'Population',v:x=>x.ct.pop,fmt:nf0,r:1},
+      {k:'pop',h:'Pop.',v:x=>x.ct.pop,fmt:nf0,r:1},
       {k:'cap',h:'Capital',v:x=>x.c&&x.c.capital===x.ct.i?1:0,show:x=>x.c&&x.c.capital===x.ct.i?'capital':''}
     ],
     search:x=>x.ct.n+' '+(x.c?x.c.base:''),
     rowBtn:x=>x.c?`<button class="btn sm" type="button" data-ta="cap">Make capital</button><button class="btn sm" type="button" data-ta="del">Remove</button>`:'',
     onAct:(x,a)=>{if(!x.c)return;let m='';if(a==='cap')m=cityMakeCapital(x.c,x.ct);else if(a==='del')m=cityRemove(x.ct);if(m)toast(m);ovDirty=true;ceVer++},
     onRow:x=>{centerOnPx(x.ct.i,8);if(x.c){sel=x.c.id;ovDirty=true}},
-    tools:`<button class="btn" type="button" data-do="ccreate">+ Found city (click map)</button><label class="tcheck"><input type="checkbox" data-only ${T.only?'checked':''}> only the selected country</label>`,
+    top:`<label class="tcheck"><input type="checkbox" data-only ${T.only?'checked':''}> selected only</label>`,
+    bar:[{t:'+ New',new:'city',tip:'Select a country, then click its land. Shift+click for several.'}],
     note:'Click a row to fly to the city.'
   };
   if(name==='armies')return{
@@ -5928,70 +6052,413 @@ function tbDef(name){
       {k:'mor',h:'Morale',t:'num',v:c=>Math.round(c.morale),edit:cEd('morale')},
       {k:'mix',h:'Units',v:c=>mixOf(c)[0],show:c=>{const m=mixOf(c);return UNITS.map((u,i)=>`<span title="${u}">${u[0]}${Math.round(m[i]*100)}</span>`).join(' ')}},
       {k:'fl',h:'Fleet',v:c=>fleetHP(c),fmt:v=>Math.round(v*100)+'%',r:1},
-      {k:'hg',h:'Home guard',v:c=>homeF(c),fmt:v=>Math.round(v*100)+'%',r:1},
-      {k:'cmd',h:'Commanders',v:c=>(c.cmds||[]).filter(k=>!k.dead).length,r:1},
+      {k:'hg',h:'Home',v:c=>homeF(c),fmt:v=>Math.round(v*100)+'%',r:1},
+      {k:'cmd',h:'Cmdrs',v:c=>(c.cmds||[]).filter(k=>!k.dead).length,r:1},
       {k:'wars',h:'Wars',v:c=>c.wars.size,r:1},
-      {k:'exp',h:'Expeditions',v:c=>expActive(c),r:1}
+      {k:'exp',h:'Exp.',v:c=>expActive(c),r:1}
     ],
     search:c=>c.base+' '+c.full,
     onRow:c=>{sel=c.id;ovDirty=true;centerOn(c)},
-    tools:`<button class="btn" type="button" data-tl="e_mil">Details of the selected army</button><button class="btn" type="button" data-do="exped">Launch expedition (click map)</button>`,
+    bar:[{t:'+ Fleet',new:'exped',tip:'Select a country, then click a shore. Shift+click for several.'}],
     note:'Edit army size and morale in the table. Open the details to set unit mix, home guard and commanders.'
   };
 }
-let tbRows=[],tbDefCur=null;
-function renderTable(){
-  const v=$('#edTableView');if(!v||v.hidden||!v.querySelector)return;
-  const name=tbName,T=TBS[name],D=tbDef(name);if(!D)return;
-  tbDefCur=D;
+
+let tblFocus=null;
+const PW={name:'countries',el:null,rows:[],def:null};   // the table inside the phone editor panel
+const EWINS={};let ezTop=40;
+const kindMode={countries:'countries',religions:'religions',ethnicities:'ethnicities',provinces:'provinces',cities:'cities',armies:'armies'};
+const DESK=()=>matchMedia('(min-width:761px)').matches;
+const modeOfSec=k=>{for(const m in EDM)if(EDM[m][1].some(x=>x[0]===k))return m;return 'countries'};
+function openSec(k){switchTab('editor');setEdMode(modeOfSec(k),k)}
+const hueRgb=(n,s,l)=>hsl2rgb((n*137.508)%360,s,l);
+function genBar(name){
+  const g=[];
+  if(name==='countries'||name==='religions'||name==='ethnicities')g.push({t:'Colours',g:'rand',tip:'Give every row a new distinct colour'});
+  g.push({t:'CSV',g:'csv',tip:'Download this table as a CSV file'});
+  return g;
+}
+function renderWin(w){
+  const v=w.el;if(!v||v.hidden||!v.querySelector)return;
+  const name=w.name,T=TBS[name],D=tbDef(name);if(!D)return;
+  w.def=D;
   const old=v.querySelector('[data-q]'),hadF=old&&document.activeElement===old,caret=hadF?old.selectionStart:0;
   const sc=v.querySelector('.tbwrap'),st=sc?sc.scrollTop:0;
   let rows=D.need?[]:D.rows();
   const q=T.q.trim().toLowerCase();if(q)rows=rows.filter(r=>D.search(r).toLowerCase().includes(q));
   const col=D.cols.find(c=>c.k===T.s)||D.cols[1]||D.cols[0];
   rows=rows.map(r=>[r,col.v(r)]).sort((a,b)=>{const x=a[1],y=b[1];return (typeof x==='string'?x.localeCompare(y):x-y)*T.d}).map(x=>x[0]);
-  tbRows=rows;
-  const th=D.cols.map(c=>`<th data-sort="${c.k}" class="${c.r?'r':''}${c.k===T.s?' on':''}" ${c.h?'':'style="width:34px"'}>${c.h}${c.k===T.s?(T.d>0?' &#9650;':' &#9660;'):''}</th>`).join('')+(D.rowBtn?'<th></th>':'');
-  const tr=rows.map((r,ri)=>`<tr data-ri="${ri}" class="${D.sel&&D.sel(r)?'sel':''}">`+D.cols.map((c,ci)=>{
+  w.rows=rows;
+  const th=D.cols.map(c=>`<th data-sort="${c.k}" class="${c.r?'r':''}${c.k===T.s?' on':''}" ${c.h?'':'style="width:34px"'}>${c.h}${c.k===T.s?(T.d>0?' &#9650;':' &#9660;'):''}</th>`).join('')+'<th></th>';
+  const tr=rows.map((r,ri)=>`<tr data-ri="${ri}" class="${(D.sel&&D.sel(r))||(tblFocus&&tblFocus.n===name&&tblFocus.id===D.id(r))?'sel':''}">`+D.cols.map((c,ci)=>{
     const val=c.v(r);let inner;
     if(c.edit&&c.t==='color')inner=`<input type="color" data-ci="${ci}" value="${val}" aria-label="Colour">`;
     else if(c.edit&&c.t==='text')inner=`<input type="text" class="tin" data-ci="${ci}" value="${escT(val)}" maxlength="28" style="width:${c.w||120}px" aria-label="${c.h}">`;
     else if(c.edit&&c.t==='num')inner=`<input type="number" class="tin n" data-ci="${ci}" value="${val}" step="${c.step||'any'}" aria-label="${c.h}">`;
     else if(c.edit&&c.t==='sel')inner=`<select class="tin" data-ci="${ci}" aria-label="${c.h}">${c.opts.map(o=>`<option value="${o[0]}" ${o[0]===val?'selected':''}>${o[1]}</option>`).join('')}</select>`;
     else inner=c.show?c.show(r):escT(c.fmt?c.fmt(val):val);
-    return `<td class="${c.r?'r':''}">${inner}</td>`}).join('')+(D.rowBtn?`<td class="act">${D.rowBtn(r)}</td>`:'')+'</tr>').join('');
-  v.innerHTML=`<div class="tbtools"><input type="search" class="tsearch" data-q placeholder="Search ${name}..." value="${escT(T.q)}" aria-label="Search"><span class="muted tcount">${rows.length} shown</span><span class="tbtn">${D.tools||''}</span></div>
+    return `<td class="${c.r?'r':''}">${inner}</td>`}).join('')+`<td class="act">${D.rowBtn?D.rowBtn(r):''}<button class="btn sm" type="button" data-ed1="1" title="Edit (or double-click the row)" aria-label="Edit">&#9998;</button></td>`+'</tr>').join('');
+  const bar=(D.bar||[]).concat(genBar(name)).map(b=>`<button class="btn" type="button" title="${escT(b.tip||'')}" ${b.new?`data-new="${b.new}"`:b.brush?`data-brush="${b.brush}"`:b.sec?`data-sec="${b.sec}"`:`data-g="${b.g}"`}>${b.t}</button>`).join('');
+  v.innerHTML=`<div class="tbtools"><input type="search" class="tsearch" data-q placeholder="Search" value="${escT(T.q)}" aria-label="Search"><span class="muted tcount">${rows.length}</span>${D.top||''}</div>
   ${D.need?`<p class="muted">${D.need}</p>`:`<div class="tbwrap"><table class="tbl"><thead><tr>${th}</tr></thead><tbody>${tr||`<tr><td colspan="${D.cols.length+1}" class="muted">Nothing here yet.</td></tr>`}</tbody></table></div>`}
-  <p class="muted tnote">${D.note||''}</p>`;
-  const w=v.querySelector('.tbwrap');if(w)w.scrollTop=st;
+  <div class="tbbar">${bar}</div>`;
+  const wr=v.querySelector('.tbwrap');if(wr)wr.scrollTop=st;
+  if(tblFocus&&tblFocus.fresh&&tblFocus.n===name){tblFocus.fresh=0;const f=v.querySelector('tr.sel');if(f&&f.scrollIntoView)f.scrollIntoView({block:'center'})}
   if(hadF){const n=v.querySelector('[data-q]');n.focus();try{n.setSelectionRange(caret,caret)}catch(e){}}
 }
-function showTable(name){tbName=name;const v=$('#edTableView');if(v&&!v.hidden)renderTable()}
-(function(){
-  const v=$('#edTableView');if(!v)return;
-  v.addEventListener('input',e=>{if(e.target.dataset.q!==undefined){TBS[tbName].q=e.target.value;renderTable()}});
+function renderTable(){PW.name=tbName;PW.el=$('#edTableView');renderWin(PW)}
+function showTable(name){tbName=name;renderTable()}
+async function saveFile(name,text,type){
+  try{
+    const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
+    if(dl){const r=await dl.save({filename:name,data:text});toast(r.status==='saved'?'File saved.':'File sent.');return}
+  }catch(err){if(err&&err.code==='declined')return;if(err&&err.code)toast('Could not save the file here.');if(err&&err.code)return}
+  try{const b=new Blob([text],{type}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);toast('File downloaded.')}catch(err){toast('Could not download the file here.')}
+}
+function csvOf(w){
+  const D=w.def;if(!D)return '';
+  const cols=D.cols.filter(c=>c.h);const q=x=>'"'+String(x).replace(/"/g,'""')+'"';
+  const val=(c,r)=>{const v=c.v(r);return c.fmt?c.fmt(v):v};
+  return [cols.map(c=>q(c.h)).join(',')].concat(w.rows.map(r=>cols.map(c=>q(val(c,r))).join(','))).join('\r\n');
+}
+function bindWin(w){
+  const v=w.el;
+  v.addEventListener('input',e=>{if(e.target.dataset.q!==undefined){TBS[w.name].q=e.target.value;renderWin(w)}});
   v.addEventListener('change',e=>{
     const t=e.target;
-    if(t.dataset.only!==undefined){TBS[tbName].only=t.checked;renderTable();return}
-    if(t.dataset.ci===undefined||!tbDefCur)return;
-    const tr=t.closest('tr'),r=tbRows[+tr.dataset.ri],col=tbDefCur.cols[+t.dataset.ci];if(!r||!col||!col.edit)return;
-    const m=col.edit(r,t.value);if(m)toast(m);ovDirty=true;renderTable();
+    if(t.dataset.only!==undefined){TBS[w.name].only=t.checked;renderWin(w);return}
+    if(t.dataset.ci===undefined||!w.def)return;
+    const tr=t.closest('tr'),r=w.rows[+tr.dataset.ri],col=w.def.cols[+t.dataset.ci];if(!r||!col||!col.edit)return;
+    const m=col.edit(r,t.value);if(m)toast(m);ovDirty=true;renderWin(w);
   });
   v.addEventListener('click',e=>{
     const t=e.target;
     const th=t.closest('th[data-sort]');
-    if(th){const T=TBS[tbName];if(T.s===th.dataset.sort)T.d=-T.d;else{T.s=th.dataset.sort;T.d=(th.classList.contains('r')||['pop','army','gold','tech','stab'].includes(T.s))?-1:1}renderTable();return}
-    const tl=t.closest('[data-tl]');if(tl){setEdSub(tl.dataset.tl);return}
-    const dd=t.closest('[data-do]');if(dd){const c=selC();const a=dd.dataset.do;if(a==='exped'||a==='pcreate'||a==='ccreate'){if(!c&&a!=='pcreate'&&a!=='ccreate'){toast('Select a country first.');return}if(!c){toast('Select a country first.');return}const m=doAction(c,a,dd);if(m)toast(m)}return}
+    if(th){const T=TBS[w.name];if(T.s===th.dataset.sort)T.d=-T.d;else{T.s=th.dataset.sort;T.d=(th.classList.contains('r')||['pop','army','gold','tech','stab'].includes(T.s))?-1:1}renderWin(w);return}
+    const nb=t.closest('[data-new]');
+    if(nb){setTool(nb.dataset.new,e.shiftKey);return}
+    const br=t.closest('[data-brush]');if(br){startBrush(br.dataset.brush);return}
+    const sb=t.closest('[data-sec]');if(sb){openSec(sb.dataset.sec);return}
+    const e1=t.closest('[data-ed1]');if(e1){const tr=e1.closest('tr'),r=w.rows[+tr.dataset.ri];if(r&&w.def)openInspector(w.name,w.def.id(r));return}
+    const gb=t.closest('[data-g]');
+    if(gb){
+      const g=gb.dataset.g;
+      if(g==='csv'){saveFile(w.name+'.csv',csvOf(w),'text/csv')}
+      else if(g==='rand'){
+        const rows=w.rows;let n=ri(0,360);
+        for(const r of rows){const rgb=hueRgb(n++,.62,.52);if(w.name==='countries')r.rgb=rgb;else if(w.name==='religions')r.r.c=rgb;else if(w.name==='ethnicities')r.e.c=rgb}
+        ovDirty=true;if(ready){paintAll();flush(true)}toast('Colours refreshed.');renderWin(w);
+      }
+      return;
+    }
     if(t.closest('input,select,label'))return;
     const tr=t.closest('tr[data-ri]');if(!tr)return;
-    const r=tbRows[+tr.dataset.ri];if(!r)return;
+    const r=w.rows[+tr.dataset.ri];if(!r)return;
     const ab=t.closest('[data-ta]');
-    if(ab){tbDefCur.onAct&&tbDefCur.onAct(r,ab.dataset.ta);renderTable();return}
-    if(tbDefCur.onRow){tbDefCur.onRow(r);renderTable()}
+    if(ab){w.def.onAct&&w.def.onAct(r,ab.dataset.ta);renderWin(w);return}
+    if(w.def.onRow){w.def.onRow(r);renderWin(w)}
   });
-  setInterval(()=>{const v=$('#edTableView');if(!v||v.hidden||curTab!=='editor')return;const a=document.activeElement;if(a&&v.contains(a)&&/INPUT|SELECT/.test(a.tagName))return;renderTable()},1500);
+  v.addEventListener('dblclick',e=>{const tr=e.target.closest('tr[data-ri]');if(!tr||e.target.closest('input,select,button'))return;const r=w.rows[+tr.dataset.ri];if(r&&w.def)openInspector(w.name,w.def.id(r))});
+}
+(function(){
+  const v=$('#edTableView');if(v){PW.el=v;bindWin(PW)}
+  setInterval(()=>{
+    const live=w=>{const a=document.activeElement;return !(a&&w.el.contains(a)&&/INPUT|SELECT/.test(a.tagName))};
+    if(PW.el&&!PW.el.hidden&&curTab==='editor'&&live(PW))renderWin(PW);
+    for(const k in EWINS){const w=EWINS[k];if(!w.root.hidden&&!w.min&&live(w))renderWin(w)}
+  },1500);
 })();
+
+
+/* ---- click the map in edit mode: open the matching table row ---- */
+function editClickAt(i){
+  if(!ready||edMain==='paint'||edMain==='found')return;
+  let ct=CITY_AT.get(i);if(!ct)for(const j of [i-1,i+1,i-W,i+W]){if(CITY_AT.has(j)){ct=CITY_AT.get(j);break}}
+  if(ct&&!ct.dead){const ix=CITIES.indexOf(ct);if(ix>=0){tblFocus={n:'cities',id:ix,fresh:1};setEdMode('cities','t_cities');return}}
+  const o=owner[i];
+  if(edMode==='provinces'&&o&&pv[i]){tblFocus={n:'provinces',id:pv[i],fresh:1};if(edMain!=='table')setEdSub('t_provinces');else renderTable();return}
+  if(edMain==='table'){
+    const id=tbName==='religions'?rg[i]:tbName==='ethnicities'?eth[i]:o;
+    if(id){tblFocus={n:tbName,id,fresh:1};renderTable()}
+  }
+}
+/* ---- right-click quick menu ---- */
+let ctxEl=null;
+function closeCtx(){if(ctxEl){ctxEl.remove();ctxEl=null}}
+function runToolAt(t,mx,my){
+  closeCtx();tool='';setTool(t);clickAt(mx,my);if(tool===t)setTool(t);
+}
+function openCtx(cx,cy,mx,my){
+  closeCtx();
+  const i=pixelAt(mx,my);if(i<0||terr[i]<2&&!owner[i])return;
+  const o=owner[i],oc=o?countries[o-1]:null,sc=selC(),items=[];
+  const ct=CITY_AT.get(i),orn=ore[i]?(ORE[ore[i]]||{}).n:'';
+  const head=(oc?oc.base:'Free land')+(ct&&!ct.dead?' · '+ct.n:'')+(orn?' · '+orn:'');
+  const add=(label,fn,dis)=>items.push([label,fn,dis]);
+  if(oc){
+    add('Select '+oc.base,()=>{sel=o;afterSel();ovDirty=true;updateTab()});
+    add('Edit '+oc.base,()=>{sel=o;afterSel();ovDirty=true;switchTab('editor');setEdMode('countries','e_id')});
+  }
+  if(terr[i]>=2){
+    add('Found nation here',()=>runToolAt('found',mx,my));
+    if(oc){add('Start a religion here',()=>runToolAt('faith',mx,my));add('Start an ethnicity here',()=>runToolAt('ethnic',mx,my))}
+  }
+  if(sc&&oc&&oc.id===sc.id){
+    add('Found city here',()=>runToolAt('city',mx,my));
+    add('Create province here',()=>runToolAt('prov',mx,my));
+    add('Move capital here',()=>runToolAt('capital',mx,my));
+  }else if(sc&&terr[i]>=2){
+    add(oc?`Invade from ${sc.base} by sea`:`Settle from ${sc.base} by sea`,()=>runToolAt('exped',mx,my));
+  }
+  add('Paint here',()=>startBrush('territory',oc?oc.id:0));
+  const m=document.createElement('div');m.className='ctxm';m.setAttribute('role','menu');
+  m.innerHTML=`<div class="ctxh">${escT(head)}</div>`+items.map((x,k)=>`<button type="button" role="menuitem" data-k="${k}">${escT(x[0])}</button>`).join('');
+  document.body.appendChild(m);ctxEl=m;
+  const w=m.offsetWidth,h=m.offsetHeight;
+  m.style.left=Math.max(4,Math.min(cx,innerWidth-w-4))+'px';m.style.top=Math.max(4,Math.min(cy,innerHeight-h-4))+'px';
+  m.addEventListener('click',e=>{const b=e.target.closest('button[data-k]');if(!b)return;const f=items[+b.dataset.k][1];closeCtx();f()});
+}
+document.addEventListener('pointerdown',e=>{if(ctxEl&&!ctxEl.contains(e.target))closeCtx()},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCtx()});
+document.addEventListener('wheel',()=>closeCtx(),{passive:true});
+
+/* ---- small centred inspector: double-click a row (or the object on the map) to edit one thing in depth ---- */
+let INSP=null;
+function inspRow(kind,id){const D=tbDef(kind);if(!D||D.need)return null;const r=D.rows().find(x=>D.id(x)===id);return r?{D,r}:null}
+function inspTitle(kind,r){return kind==='countries'||kind==='armies'?r.full||r.base:kind==='religions'?r.r.n:kind==='ethnicities'?r.e.n:kind==='provinces'?r.P.n:kind==='cities'?r.ct.n:''}
+function renderInsp(){
+  if(!INSP)return;
+  const f=inspRow(INSP.kind,INSP.id);if(!f){closeInsp();return}
+  const {D,r}=f,el=INSP.el,body=el.querySelector('.inb');
+  const a=document.activeElement;if(a&&body.contains(a)&&/INPUT|SELECT/.test(a.tagName)&&!INSP.force)return;
+  INSP.force=0;
+  el.querySelector('.inh b').textContent=inspTitle(INSP.kind,r);
+  const rows=D.cols.map((c,ci)=>{
+    const val=c.v(r);let inner;
+    if(c.edit&&c.t==='color')inner=`<input type="color" data-ci="${ci}" value="${val}">`;
+    else if(c.edit&&c.t==='text')inner=`<input type="text" data-ci="${ci}" value="${escT(val)}" maxlength="28">`;
+    else if(c.edit&&c.t==='num')inner=`<input type="number" data-ci="${ci}" value="${val}" step="${c.step||'any'}">`;
+    else if(c.edit&&c.t==='sel')inner=`<select data-ci="${ci}">${c.opts.map(o=>`<option value="${o[0]}" ${o[0]===val?'selected':''}>${o[1]}</option>`).join('')}</select>`;
+    else inner=`<span>${c.show?c.show(r):escT(c.fmt?c.fmt(val):val)}</span>`;
+    return `<label class="inr"><em>${c.h||'Colour'}</em>${inner}</label>`}).join('');
+  const sec=(D.bar||[]).find(x=>x.sec&&/^e_/.test(x.sec));
+  const btns=(D.rowBtn?D.rowBtn(r).replace(/class="btn sm"/g,'class="btn"'):'')+(D.ins||[]).map(x=>`<button class="btn" type="button" data-pa="${x.a}">${x.t}</button>`).join('')+(D.onRow?'<button class="btn" type="button" data-fly="1">Fly to</button>':'')+(sec?`<button class="btn" type="button" data-adv="${sec.sec}">More</button>`:'');
+  body.innerHTML=`<div class="ing">${rows}</div><div class="inbtn">${btns}</div>`;
+}
+function openInspector(kind,id){
+  if(!DESK()){const D=tbDef(kind);const sec=D&&(D.bar||[]).find(x=>x.sec&&/^e_/.test(x.sec));if(sec){openSec(sec.sec);return}}
+  const host=document.querySelector('.mapwrap');if(!host)return;
+  closeInsp();
+  const el=document.createElement('section');el.className='insp';el.setAttribute('role','dialog');el.setAttribute('aria-label','Edit');
+  el.innerHTML='<div class="inh"><b></b><span class="spacer"></span><button type="button" class="ewb1" data-x="1" title="Close" aria-label="Close">&times;</button></div><div class="inb"></div>';
+  host.appendChild(el);INSP={kind,id,el,force:1};
+  renderInsp();
+  el.addEventListener('pointerdown',()=>{el.style.zIndex=++ezTop+20},true);
+  el.querySelector('.inh').addEventListener('pointerdown',e=>{
+    if(e.target.closest('button'))return;
+    const hr=host.getBoundingClientRect(),r=el.getBoundingClientRect(),ox=e.clientX-r.left,oy=e.clientY-r.top;
+    el.style.transform='none';el.style.left=(r.left-hr.left)+'px';el.style.top=(r.top-hr.top)+'px';
+    el.setPointerCapture(e.pointerId);
+    const mv=ev=>{el.style.left=Math.max(0,Math.min(hr.width-60,ev.clientX-hr.left-ox))+'px';el.style.top=Math.max(0,Math.min(hr.height-30,ev.clientY-hr.top-oy))+'px'};
+    const up=()=>{el.removeEventListener('pointermove',mv);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up)};
+    el.addEventListener('pointermove',mv);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);e.preventDefault();
+  });
+  el.addEventListener('change',e=>{
+    const t=e.target;if(t.dataset.ci===undefined||!INSP)return;
+    const f=inspRow(INSP.kind,INSP.id);if(!f)return;
+    const col=f.D.cols[+t.dataset.ci];if(!col||!col.edit)return;
+    const m=col.edit(f.r,t.value);if(m)toast(m);ovDirty=true;INSP.force=1;renderInsp();refreshWins();
+  });
+  el.addEventListener('click',e=>{
+    const t=e.target;if(!INSP)return;
+    if(t.closest('[data-x]')){closeInsp();return}
+    const f=inspRow(INSP.kind,INSP.id);if(!f)return;
+    const fl=t.closest('[data-fly]');if(fl){f.D.onRow(f.r);return}
+    const ad=t.closest('[data-adv]');if(ad){const k=INSP.kind;if(f.D.onRow)f.D.onRow(f.r);closeInsp();openSec(ad.dataset.adv);return}
+    const pa=t.closest('[data-pa]');
+    if(pa){const c=selC();if(c){const m=doAction(c,pa.dataset.pa,{dataset:{p:INSP.id}});if(m)toast(m)}ovDirty=true;INSP.force=1;renderInsp();refreshWins();return}
+    const ta=t.closest('[data-ta]');if(ta){f.D.onAct&&f.D.onAct(f.r,ta.dataset.ta);INSP.force=1;renderInsp();refreshWins()}
+  });
+}
+function closeInsp(){if(INSP){INSP.el.remove();INSP=null}}
+function refreshWins(){for(const k in EWINS){const w=EWINS[k];if(!w.root.hidden)renderWin(w)}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&INSP)closeInsp()});
+setInterval(()=>{if(INSP)renderInsp()},1500);
+/* map double-click while an editor window is open: edit that object */
+function inspectAt(i,o){
+  const open=n=>EWINS[n]&&!EWINS[n].root.hidden;
+  if(!Object.keys(EWINS).some(open))return false;
+  sel=o;
+  let ct=CITY_AT.get(i);if(!ct)for(const j of [i-1,i+1,i-W,i+W]){if(CITY_AT.has(j)){ct=CITY_AT.get(j);break}}
+  if(open('cities')&&ct&&!ct.dead){openInspector('cities',CITIES.indexOf(ct));return true}
+  if(open('provinces')&&pv[i]){openInspector('provinces',pv[i]);return true}
+  if(open('religions')&&rg[i]){openInspector('religions',rg[i]);return true}
+  if(open('ethnicities')&&eth[i]){openInspector('ethnicities',eth[i]);return true}
+  if(open('armies')){openInspector('armies',o);return true}
+  if(open('countries')){openInspector('countries',o);return true}
+  return false;
+}
+/* ================= desktop: Azgaar-style left bar (Layers / Tools) and floating editor windows ================= */
+const EW_TITLE={countries:'Countries',religions:'Faiths',ethnicities:'Peoples',provinces:'Provinces',cities:'Cities',armies:'Armies'};
+function openEWin(name){
+  if(!DESK()){openSec('t_'+name);return}
+  const host=document.querySelector('.mapwrap');if(!host)return;
+  let w=EWINS[name];
+  if(w){w.root.hidden=false;w.root.style.zIndex=++ezTop;if(w.min)toggleMin(w);renderWin(w);return}
+  const root=document.createElement('section');root.className='ewin';root.setAttribute('aria-label',EW_TITLE[name]+' editor');
+  const n=Object.keys(EWINS).length;
+  root.style.left=(372+n*30)+'px';root.style.top=(64+n*30)+'px';root.style.zIndex=++ezTop;
+  root.innerHTML=`<div class="ewh"><b>${EW_TITLE[name]}</b><span class="spacer"></span><button type="button" class="ewb1" data-w="min" title="Minimise" aria-label="Minimise">&minus;</button><button type="button" class="ewb1" data-w="x" title="Close" aria-label="Close">&times;</button></div><div class="ewbody"></div>`;
+  host.appendChild(root);
+  w={name,root,el:root.querySelector('.ewbody'),rows:[],def:null,min:false};EWINS[name]=w;
+  bindWin(w);renderWin(w);
+  root.addEventListener('pointerdown',()=>{root.style.zIndex=++ezTop},true);
+  root.querySelector('.ewh').addEventListener('pointerdown',e=>{
+    if(e.target.closest('button'))return;
+    const hr=host.getBoundingClientRect(),r=root.getBoundingClientRect(),ox=e.clientX-r.left,oy=e.clientY-r.top;
+    root.setPointerCapture(e.pointerId);
+    const mv=ev=>{root.style.left=Math.max(0,Math.min(hr.width-60,ev.clientX-hr.left-ox))+'px';root.style.top=Math.max(0,Math.min(hr.height-30,ev.clientY-hr.top-oy))+'px'};
+    const up=()=>{root.removeEventListener('pointermove',mv);root.removeEventListener('pointerup',up);root.removeEventListener('pointercancel',up)};
+    root.addEventListener('pointermove',mv);root.addEventListener('pointerup',up);root.addEventListener('pointercancel',up);e.preventDefault();
+  });
+  root.addEventListener('click',e=>{const b=e.target.closest('[data-w]');if(!b)return;if(b.dataset.w==='x')root.hidden=true;else toggleMin(w)});
+  root.querySelector('.ewh').addEventListener('dblclick',e=>{if(!e.target.closest('button'))toggleMin(w)});
+}
+function toggleMin(w){w.min=!w.min;w.root.classList.toggle('min',w.min);if(!w.min)renderWin(w)}
+function closeAllWins(){for(const k in EWINS)EWINS[k].root.hidden=true}
+
+/* ---- left bar ---- */
+const PRESETS={
+  political:{n:'Political',mode:'political',on:['tgLabel','tgCaps','tgCities','tgArmy','tgTrade','tgRivers','tgFields']},
+  people:{n:'People',mode:'ethnicity',on:['tgLabel','tgCities','tgRivers']},
+  faith:{n:'Faith',mode:'religion',on:['tgLabel','tgCities','tgRivers']},
+  economy:{n:'Economy',mode:'gdp',on:['tgLabel','tgCities','tgTrade','tgRivers']},
+  war:{n:'War',mode:'political',on:['tgLabel','tgCaps','tgCities','tgArmy']},
+  resources:{n:'Ores',mode:'ores',on:['tgRivers','tgCities']},
+  provinces:{n:'Provinces',mode:'provinces',on:['tgLabel','tgPNames','tgProv','tgCities']},
+  terrain:{n:'Terrain',mode:'terrain',on:['tgRivers']}
+};
+const LTOG=[['tgLabel','Names'],['tgPNames','Prov. names'],['tgCaps','Capitals'],['tgCities','Cities'],['tgTrade','Trade'],['tgArmy','Armies'],['tgRivers','Rivers'],['tgFields','Fields'],['tgProv','Prov. borders']];
+function applyPreset(k){
+  const P=PRESETS[k];if(!P)return;
+  for(const [id] of LTOG){const el=$('#'+id);if(el&&!el.disabled){const want=P.on.includes(id);if(el.checked!==want){el.checked=want;el.dispatchEvent(new Event('change'))}}}
+  if(mode!==P.mode){$('#mode').value=P.mode;$('#mode').onchange({target:{value:P.mode}})}
+  syncLbar();
+}
+let syncLbar=()=>{};
+(function(){
+  const host=document.querySelector('.mapwrap');if(!host)return;
+  const bar=document.createElement('aside');bar.id='lbar';bar.setAttribute('aria-label','Map layers and tools');
+  const modeOpts=$('#mode').innerHTML;
+  bar.innerHTML=`<div class="lbtop"><span class="lbbrand">Pixel Dominion</span><button type="button" class="lbc" id="lbCol" title="Hide" aria-label="Hide the panel">&#9664;</button></div>
+  <div class="lbk" id="lbT1"></div>
+  <div class="lbh"><button type="button" class="lbt" data-lt="layers" aria-selected="true">Layers</button><button type="button" class="lbt" data-lt="tools" aria-selected="false">Tools</button><button type="button" class="lbt" data-lt="views" aria-selected="false">Views</button><button type="button" class="lbt" data-lt="game" aria-selected="false">Game</button></div>
+  <div class="lbp" data-lp="layers">
+    <select id="lbPreset" aria-label="Preset">${Object.keys(PRESETS).map(k=>`<option value="${k}">${PRESETS[k].n}</option>`).join('')}<option value="" selected>Custom</option></select>
+    <select id="lbMode" aria-label="Map colours" style="margin-top:6px">${modeOpts}</select>
+    <div class="lbg">${LTOG.map(([id,t])=>`<button type="button" data-tg="${id}" aria-pressed="false">${t}</button>`).join('')}</div>
+    <div class="lbz"><span id="lbZ"></span><button type="button" class="lbb" id="lbAll" title="Show every layer">All</button><button type="button" class="lbb" id="lbNone" title="Hide every layer">None</button></div>
+  </div>
+  <div class="lbp" data-lp="tools" hidden>
+    <div class="lbs">Edit</div>
+    <div class="lbg">${Object.keys(EW_TITLE).map(k=>`<button type="button" data-ew="${k}">${EW_TITLE[k]}</button>`).join('')}<button type="button" data-brush="ore" title="Paint ore deposits">Ores</button><button type="button" data-sec="e_dip">Diplomacy</button></div>
+    <div class="lbs" title="Shift+click, then click the map to place several">Create</div>
+    <div class="lbg"><button type="button" data-new="found">Nation</button><button type="button" data-new="city">City</button><button type="button" data-new="prov">Province</button><button type="button" data-new="faith">Faith</button><button type="button" data-new="ethnic">People</button><button type="button" data-new="exped">Fleet</button></div>
+    <div class="lbr"><button type="button" class="lbb" id="lbCloseAll">Close all</button></div>
+  </div>
+  <div class="lbp" data-lp="views" hidden><div class="lbg" id="lbViews"></div></div>
+  <div class="lbp" data-lp="game" hidden><div class="lbg" id="lbGame"></div></div>`;
+  const dock=document.createElement('div');dock.id='tdock';dock.setAttribute('aria-label','Time');host.appendChild(dock);
+  host.appendChild(bar);
+  const tab=document.createElement('button');tab.type='button';tab.id='lbOpen';tab.title='Show layers and tools';tab.setAttribute('aria-label','Show layers and tools');tab.innerHTML='&#9654;';tab.hidden=true;host.appendChild(tab);
+  const col=c=>{bar.hidden=c;tab.hidden=!c;if(c&&curTab&&DESK()){}try{localStorage.setItem('pd_lbar',c?'0':'1')}catch(e){}};
+  try{if(localStorage.getItem('pd_lbar')==='0')col(true)}catch(e){}
+  $('#lbCol').onclick=()=>col(true);tab.onclick=()=>col(false);
+  bar.addEventListener('click',e=>{
+    const t=e.target.closest('button');if(!t)return;
+    if(t.dataset.lt){bar.querySelectorAll('.lbt').forEach(b=>b.setAttribute('aria-selected',String(b===t)));bar.querySelectorAll('.lbp').forEach(p=>p.hidden=p.dataset.lp!==t.dataset.lt);return}
+    if(t.dataset.tg){const el=$('#'+t.dataset.tg);if(el&&!el.disabled){el.checked=!el.checked;el.dispatchEvent(new Event('change'));$('#lbPreset').value='';syncLbar()}return}
+    if(t.dataset.ew){openEWin(t.dataset.ew);return}
+    if(t.dataset.brush){startBrush(t.dataset.brush);return}
+    if(t.dataset.sec){openSec(t.dataset.sec);return}
+    if(t.dataset.new){setTool(t.dataset.new,e.shiftKey);return}
+    if(t.id==='lbAll'){setAllToggles(true);$('#lbPreset').value='';syncLbar();return}
+    if(t.id==='lbNone'){setAllToggles(false);$('#lbPreset').value='';syncLbar();return}
+    if(t.id==='lbCloseAll'){closeAllWins();if(curTab==='editor')switchTab('');return}
+  });
+  $('#lbPreset').onchange=e=>{if(e.target.value)applyPreset(e.target.value)};
+  $('#lbMode').onchange=e=>{const m=e.target.value;if(mode!==m){$('#mode').value=m;$('#mode').onchange({target:{value:m}})}$('#lbPreset').value=''};
+  syncLbar=()=>{
+    for(const b of bar.querySelectorAll('[data-tg]')){const el=$('#'+b.dataset.tg);b.disabled=!el||el.disabled;b.setAttribute('aria-pressed',String(!!(el&&el.checked)))}
+    const m=$('#mode').value;if($('#lbMode').value!==m)$('#lbMode').value=m;
+    for(const b of bar.querySelectorAll('[data-new]'))b.setAttribute('aria-pressed',String(tool===b.dataset.new));
+  };
+  setInterval(()=>{if(!bar.hidden)syncLbar()},600);syncLbar();
+})();
+
+/* ---- move the old top bar's controls into the left bar on desktop, and back on phones ---- */
+const DOCKED=[];
+function mvTo(el,dest,cls){if(!el||!dest)return;DOCKED.push({el,p:el.parentNode,n:el.nextSibling,cls});if(cls)el.classList.add(cls);dest.appendChild(el)}
+function dockTop(on){
+  if(on&&!DOCKED.length){
+    mvTo(document.querySelector('.kpis'),$('#lbT1'));
+    mvTo($('#clock'),$('#tdock'));mvTo($('#speed'),$('#tdock'));mvTo(document.querySelector('.tsl'),$('#tdock'));
+    mvTo(document.querySelector('.maptools .z'),$('#lbZ'));
+    const V=$('#lbViews');
+    for(const t of ['nations','time','stats','lineage','grave']){const b=document.querySelector(`#tabs [data-tab="${t}"]`);mvTo(b,V,'lbmv')}
+    mvTo($('#btnChron'),V,'lbmv');mvTo($('#ticker'),V);
+    mvTo($('#btnSaves'),$('#lbGame'),'lbmv');mvTo($('#btnNew'),$('#lbGame'),'lbmv');
+  }else if(!on&&DOCKED.length){
+    for(let i=DOCKED.length-1;i>=0;i--){const d=DOCKED[i];if(d.cls)d.el.classList.remove(d.cls);d.p.insertBefore(d.el,d.n&&d.n.parentNode===d.p?d.n:null)}
+    DOCKED.length=0;
+  }
+}
+{const mq=matchMedia('(min-width:761px)');const f=()=>dockTop(mq.matches);if(mq.addEventListener)mq.addEventListener('change',f);else if(mq.addListener)mq.addListener(f);f()}
+/* direct brush: Brush buttons arm painting at once, with a small floating bar instead of the long editor panel */
+let BR=null;
+const BRK={territory:{t:'Land',sel:'#edCountry'},ethnicity:{t:'People',sel:'#edEth'},religion:{t:'Faith',sel:'#edRel'},ore:{t:'Ore',sel:'#edOreSel'}};
+function brushHud(){
+  if(!document.querySelector||!document.getElementById)return null;
+  let h=document.getElementById('bhud');if(h)return h;
+  const host=document.querySelector('.mapwrap')||document.body;if(!host)return null;
+  h=document.createElement('div');h.id='bhud';h.hidden=true;
+  h.innerHTML='<b id="bhT">Brush</b><select id="bhSel" aria-label="Paint"></select><label class="bhz" title="Brush size">⬤<input type="range" id="bhSz" min="1" max="40"></label><button class="btn" type="button" id="bhUn" title="Undo stroke">↶</button><button class="btn primary" type="button" id="bhDone">Done</button>';
+  host.appendChild(h);
+  h.querySelector('#bhSel').onchange=e=>{const s=$(BRK[BR.layer].sel);if(!s)return;s.value=e.target.value;s.dispatchEvent(new Event('change'))};
+  h.querySelector('#bhSz').oninput=e=>{const b=$('#edBrush');b.value=e.target.value;b.dispatchEvent(new Event('input'))};
+  h.querySelector('#bhUn').onclick=()=>undoStroke();
+  h.querySelector('#bhDone').onclick=()=>stopBrush();
+  return h;
+}
+function startBrush(layer,id){
+  if(!ready||!BRK[layer])return;
+  if(tool)setTool(tool);
+  if(typeof closeCtx==='function')closeCtx();
+  if(curTab==='editor')switchTab('');
+  edMain='paint';
+  refreshEditor(true);setLayer(layer);
+  const k=BRK[layer],s=$(k.sel);
+  if(s){
+    if(id==null&&layer==='territory'){const c=selC();id=c?c.id:0}
+    if(id!=null&&s.options&&[...s.options].some(o=>o.value===String(id))){s.value=String(id);s.dispatchEvent(new Event('change'))}
+  }
+  if(layer==='territory'){const c=$('#edSettle');if(c)c.checked=true}
+  $('#edOn').checked=true;
+  const h=brushHud();if(!h)return;
+  BR={layer};
+  h.querySelector('#bhT').textContent=k.t;
+  const bs=h.querySelector('#bhSel');bs.innerHTML=s?s.innerHTML:'';bs.value=s?s.value:'';
+  h.querySelector('#bhSz').value=$('#edBrush').value;
+  h.hidden=false;document.body.classList.add('brushing');
+  brushScr=null;ovDirty=true;
+  $('#hover').textContent='Drag to paint · right-drag or Space to pan · Esc to finish';
+}
+function stopBrush(){
+  if(!BR)return;BR=null;edMain='country';
+  const h=document.getElementById&&document.getElementById('bhud');if(h)h.hidden=true;
+  document.body.classList.remove('brushing');brushScr=null;ovDirty=true;
+}
+document.addEventListener('keydown',e=>{if(BR&&e.key==='Escape')stopBrush()});
 
 </script>
 
